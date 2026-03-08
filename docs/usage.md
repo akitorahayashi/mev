@@ -40,7 +40,6 @@ mev identity set          # Configure VCS identities interactively
 mev identity show         # Show current configuration
 mev config create         # Deploy all role configs to ~/.config/mev/
 mev config create rust    # Deploy only rust role config
-mev cf set                # Shorthand
 ```
 
 Switch VCS identity:
@@ -57,7 +56,7 @@ Backup:
 ```sh
 mev backup system         # Backup macOS system defaults
 mev backup vscode         # Backup VSCode extensions list
-mev backup list           # List available backup targets
+mev backup --list           # List available backup targets
 mev bk system             # Shorthand
 ```
 
