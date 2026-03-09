@@ -2,7 +2,7 @@
 # justfile for mev development
 # ==============================================================================
 # Rust-first CLI for macOS development environment provisioning.
-# Python is retained only for ansible-lint in development workflows.
+# Python is retained only for Ansible tooling in development workflows.
 # ==============================================================================
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]

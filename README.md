@@ -19,9 +19,9 @@ Rust-first architecture with embedded Ansible assets.
    brew install pipx
    pipx ensurepath
    ```
-4. ansible-core (via pipx)
+4. ansible (via pipx)
    ```sh
-   pipx install ansible-core
+   pipx install ansible
    ```
 
 ## Installation

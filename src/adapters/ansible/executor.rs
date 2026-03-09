@@ -1,11 +1,50 @@
 //! Ansible adapter — unified playbook execution, tag resolution, and role discovery.
 
 use std::collections::HashMap;
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
+
+const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
+const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = ".local/pipx/venvs/ansible/bin/ansible-playbook";
+
+fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
+    if let Some(custom_bin) = env::var_os(ANSIBLE_PLAYBOOK_BIN_ENV) {
+        let custom_path = PathBuf::from(custom_bin);
+        if custom_path.is_file() {
+            return Ok(custom_path);
+        }
+        return Err(AppError::AnsibleExecution {
+            message: format!(
+                "{ANSIBLE_PLAYBOOK_BIN_ENV} points to a missing ansible-playbook binary: {}",
+                custom_path.display()
+            ),
+            exit_code: None,
+        });
+    }
+
+    let home = env::var_os("HOME").ok_or_else(|| AppError::AnsibleExecution {
+        message: "HOME is not set; cannot resolve pipx ansible-playbook path.".to_string(),
+        exit_code: None,
+    })?;
+
+    let pipx_ansible_playbook = PathBuf::from(home).join(PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH);
+    if pipx_ansible_playbook.is_file() {
+        return Ok(pipx_ansible_playbook);
+    }
+
+    Err(AppError::AnsibleExecution {
+        message: format!(
+            "ansible-playbook binary not found. Install ansible with pipx (`pipx install ansible`) \
+             and ensure ~/.local/pipx/venvs/ansible/bin/ansible-playbook exists, or set \
+             {ANSIBLE_PLAYBOOK_BIN_ENV} explicitly."
+        ),
+        exit_code: None,
+    })
+}
 
 /// Unified adapter for Ansible operations.
 pub struct AnsibleAdapter {
@@ -68,13 +107,7 @@ impl AnsiblePort for AnsibleAdapter {
             });
         }
 
-        let ansible_playbook =
-            which::which("ansible-playbook").map_err(|_| AppError::AnsibleExecution {
-                message:
-                    "ansible-playbook not found in PATH. Install ansible-core with pipx: `pipx install ansible-core`."
-                        .to_string(),
-                exit_code: None,
-            })?;
+        let ansible_playbook = resolve_ansible_playbook_bin()?;
 
         let mut cmd = Command::new(ansible_playbook);
         cmd.arg(&playbook_path)
