@@ -9,7 +9,8 @@ use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 
 const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
-const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = ".local/pipx/venvs/ansible/bin/ansible-playbook";
+const PIPX_HOME_ENV: &str = "PIPX_HOME";
+const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = "venvs/ansible/bin/ansible-playbook";
 
 fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
     if let Some(custom_bin) = env::var_os(ANSIBLE_PLAYBOOK_BIN_ENV) {
@@ -26,21 +27,26 @@ fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
         });
     }
 
-    let home = env::var_os("HOME").ok_or_else(|| AppError::AnsibleExecution {
-        message: "HOME is not set; cannot resolve pipx ansible-playbook path.".to_string(),
-        exit_code: None,
-    })?;
+    let pipx_home = env::var_os(PIPX_HOME_ENV)
+        .map(PathBuf::from)
+        .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".local").join("pipx")))
+        .ok_or_else(|| AppError::AnsibleExecution {
+            message: format!(
+                "neither {PIPX_HOME_ENV} nor HOME is set; cannot resolve pipx ansible-playbook path."
+            ),
+            exit_code: None,
+        })?;
 
-    let pipx_ansible_playbook = PathBuf::from(home).join(PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH);
+    let pipx_ansible_playbook = pipx_home.join(PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH);
     if pipx_ansible_playbook.is_file() {
         return Ok(pipx_ansible_playbook);
     }
 
     Err(AppError::AnsibleExecution {
         message: format!(
-            "ansible-playbook binary not found. Install ansible with pipx (`pipx install ansible`) \
-             and ensure ~/.local/pipx/venvs/ansible/bin/ansible-playbook exists, or set \
-             {ANSIBLE_PLAYBOOK_BIN_ENV} explicitly."
+            "ansible-playbook binary not found at '{}'. Install ansible with pipx (`pipx install ansible`) \
+             or set {ANSIBLE_PLAYBOOK_BIN_ENV} explicitly.",
+            pipx_ansible_playbook.display()
         ),
         exit_code: None,
     })
