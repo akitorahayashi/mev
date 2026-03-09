@@ -68,10 +68,16 @@ impl AnsiblePort for AnsibleAdapter {
             });
         }
 
-        let mut cmd = Command::new("uv");
-        cmd.arg("run")
-            .arg("ansible-playbook")
-            .arg(&playbook_path)
+        let ansible_playbook =
+            which::which("ansible-playbook").map_err(|_| AppError::AnsibleExecution {
+                message:
+                    "ansible-playbook not found in PATH. Install ansible-core with pipx: `pipx install ansible-core`."
+                        .to_string(),
+                exit_code: None,
+            })?;
+
+        let mut cmd = Command::new(ansible_playbook);
+        cmd.arg(&playbook_path)
             .arg("-e")
             .arg(format!("profile={profile}"))
             .arg("-e")

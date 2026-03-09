@@ -1,5 +1,5 @@
 name: Setup Base Environment
-description: Install Python, uv, and Ansible dependencies
+description: Install Python, uv, and project dependencies for CI
 
 runs:
   using: "composite"
@@ -25,3 +25,11 @@ runs:
     - name: Install Ansible and dependencies with uv
       shell: bash
       run: uv sync --frozen
+
+    - name: Expose project virtualenv binaries
+      shell: bash
+      run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+
+    - name: Verify ansible-playbook availability
+      shell: bash
+      run: ansible-playbook --version
