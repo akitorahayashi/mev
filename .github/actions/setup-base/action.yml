@@ -29,4 +29,5 @@ runs:
 
     - name: Verify ansible-playbook availability
       shell: bash
-      run: "$ANSIBLE_PLAYBOOK_BIN" --version
+      run: |
+        "$ANSIBLE_PLAYBOOK_BIN" --version
