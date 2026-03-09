@@ -25,6 +25,11 @@ if ! command -v curl >/dev/null 2>&1; then
 	exit 1
 fi
 
+if ! command -v shasum >/dev/null 2>&1; then
+	echo "shasum is required but was not found in PATH." >&2
+	exit 1
+fi
+
 if [[ -n "${MEV_BINARY_URL:-}" ]]; then
 	binary_url="$MEV_BINARY_URL"
 elif [[ "$version" == "latest" ]]; then
@@ -34,14 +39,38 @@ else
 fi
 
 tmp_file="$(mktemp "${TMPDIR:-/tmp}/mev.XXXXXX")"
-trap 'rm -f "$tmp_file"' EXIT
+checksum_file="$(mktemp "${TMPDIR:-/tmp}/mev-sha256.XXXXXX")"
+trap 'rm -f "$tmp_file" "$checksum_file"' EXIT
 
 echo "Downloading ${binary_name} for ${target} from ${binary_url}..."
-curl -fsSL "$binary_url" -o "$tmp_file"
+curl -fsSL -o "$tmp_file" -- "$binary_url"
+
+if [[ -n "${MEV_BINARY_SHA256:-}" ]]; then
+	expected_sha256="$MEV_BINARY_SHA256"
+else
+	if [[ -n "${MEV_BINARY_SHA256_URL:-}" ]]; then
+		checksum_url="$MEV_BINARY_SHA256_URL"
+	else
+		checksum_url="${binary_url}.sha256"
+	fi
+	echo "Downloading SHA256 checksum from ${checksum_url}..."
+	curl -fsSL -o "$checksum_file" -- "$checksum_url"
+	expected_sha256="$(awk '{print $1}' "$checksum_file")"
+fi
+
+if [[ ! "$expected_sha256" =~ ^[[:xdigit:]]{64}$ ]]; then
+	echo "Invalid SHA256 checksum format: ${expected_sha256}" >&2
+	exit 1
+fi
+
+actual_sha256="$(shasum -a 256 "$tmp_file" | awk '{print $1}')"
+if [[ "$actual_sha256" != "$expected_sha256" ]]; then
+	echo "SHA256 mismatch: expected ${expected_sha256}, got ${actual_sha256}" >&2
+	exit 1
+fi
 
 mkdir -p "$install_dir"
-chmod +x "$tmp_file"
-mv "$tmp_file" "${install_dir}/${binary_name}"
+install -m 755 "$tmp_file" "${install_dir}/${binary_name}"
 
 echo "Installed to ${install_dir}/${binary_name}"
 echo "Ensure ${install_dir} is in PATH, then run: ${binary_name} --version"

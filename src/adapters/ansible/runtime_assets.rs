@@ -49,7 +49,12 @@ pub fn materialize_embedded_ansible_dir() -> Result<PathBuf, AppError> {
     for relative in EmbeddedAnsibleAssets::iter() {
         let relative_path = relative.as_ref();
         let Some(content) = EmbeddedAnsibleAssets::get(relative_path) else {
-            let _ = std::fs::remove_dir_all(&staging);
+            if let Err(cleanup_err) = std::fs::remove_dir_all(&staging) {
+                return Err(AppError::Config(format!(
+                    "embedded ansible asset missing at runtime: {relative_path}; failed to clean staging '{}': {cleanup_err}",
+                    staging.display()
+                )));
+            }
             return Err(AppError::Config(format!(
                 "embedded ansible asset missing at runtime: {relative_path}"
             )));

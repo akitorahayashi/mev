@@ -3,6 +3,18 @@ revision = 3
 requires-python = "==3.12.*"
 
 [[package]]
+name = "ansible"
+version = "11.13.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ansible-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/08/26/182bfd55a1d5a24148e52589decba98a0c6fe3c9b15db19df342a6b4f072/ansible-11.13.0.tar.gz", hash = "sha256:c15a046c851c22e8430783bdbcb8f6603c35f0d7c766992ca0a6a9ed975e4a9a", size = 53138771, upload-time = "2025-12-09T21:00:37.827Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/03/ccb0340249d5a3f2607b384e8fa11b5ce7ab7812da14bb4157b9e1a51be1/ansible-11.13.0-py3-none-any.whl", hash = "sha256:7f1c9c6a6026ff214d9240647e4d2b019b2a9d4c7a2bc733932bcf92af80ab04", size = 57605169, upload-time = "2025-12-09T21:00:29.948Z" },
+]
+
+[[package]]
 name = "ansible-compat"
 version = "25.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -266,12 +278,19 @@ name = "mev-dev-tools"
 version = "1.0.0"
 source = { virtual = "." }
 
+[package.optional-dependencies]
+ci = [
+    { name = "ansible" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "ansible-lint" },
 ]
 
 [package.metadata]
+requires-dist = [{ name = "ansible", marker = "extra == 'ci'", specifier = ">=11.0.0,<12.0.0" }]
+provides-extras = ["ci"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ansible-lint", specifier = ">=25.0.0,<27.0.0" }]

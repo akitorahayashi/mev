@@ -33,7 +33,8 @@ jobs:
           set -euo pipefail
           chmod +x install.sh
           binary_url="file://$PWD/target/aarch64-apple-darwin/release/mev"
-          MEV_BINARY_URL="$binary_url" MEV_INSTALL_DIR="$PWD/.tmp/install/bin" ./install.sh
+          binary_sha256="$(shasum -a 256 target/aarch64-apple-darwin/release/mev | awk '{print $1}')"
+          MEV_BINARY_URL="$binary_url" MEV_BINARY_SHA256="$binary_sha256" MEV_INSTALL_DIR="$PWD/.tmp/install/bin" ./install.sh
 
       - name: Verify installed binary
         shell: bash

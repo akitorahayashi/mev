@@ -1,12 +1,13 @@
 //! Version source based on the repository install script.
 
+use std::io::Write;
 use std::process::Command;
+use std::process::Stdio;
 
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
 
-const INSTALL_SCRIPT_URL: &str =
-    "https://raw.githubusercontent.com/akitorahayashi/mev/main/install.sh";
+const EMBEDDED_INSTALL_SCRIPT: &str = include_str!("../../../install.sh");
 
 pub struct InstallScriptVersionSource;
 
@@ -18,18 +19,32 @@ impl VersionSource for InstallScriptVersionSource {
     fn run_upgrade(&self) -> Result<(), AppError> {
         println!("Upgrading {} via install script...", env!("CARGO_PKG_NAME"));
 
-        let script = format!("set -euo pipefail; curl -fsSL {INSTALL_SCRIPT_URL} | bash");
-        let status = Command::new("bash").args(["-c", &script]).status().map_err(|e| {
+        let mut child =
+            Command::new("bash").arg("-s").stdin(Stdio::piped()).spawn().map_err(|e| {
+                if e.kind() == std::io::ErrorKind::NotFound {
+                    AppError::Update("bash not found. Please ensure bash is installed.".to_string())
+                } else {
+                    AppError::Update(format!("failed to run embedded install script: {e}"))
+                }
+            })?;
+
+        if let Some(stdin) = child.stdin.as_mut() {
+            stdin.write_all(EMBEDDED_INSTALL_SCRIPT.as_bytes()).map_err(|e| {
+                AppError::Update(format!("failed to stream embedded install script: {e}"))
+            })?;
+        }
+
+        let status = child.wait().map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
                 AppError::Update("bash not found. Please ensure bash is installed.".to_string())
             } else {
-                AppError::Update(format!("failed to run install script: {e}"))
+                AppError::Update(format!("failed to run embedded install script: {e}"))
             }
         })?;
 
         if !status.success() {
             return Err(AppError::Update(format!(
-                "install script failed with exit code {}",
+                "embedded install script failed with exit code {}",
                 status.code().unwrap_or(-1)
             )));
         }

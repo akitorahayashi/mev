@@ -46,5 +46,6 @@ jobs:
         with:
           files: |
             .tmp/artifacts/mev-darwin-aarch64
+            .tmp/artifacts/mev-darwin-aarch64.sha256
           generate_release_notes: true
           overwrite_files: true
