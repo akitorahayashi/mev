@@ -1,6 +1,5 @@
 //! CLI adapter — top-level parser and subcommand dispatch.
 
-pub mod shell;
 pub mod vcs;
 
 use clap::{Parser, Subcommand};
@@ -16,10 +15,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Shell helper generators.
-    #[command(subcommand)]
-    Shell(shell::ShellCommand),
-
     /// VCS helpers.
     #[command(subcommand)]
     Vcs(vcs::VcsCommand),
@@ -30,7 +25,6 @@ pub fn run() {
     let cli = Cli::parse();
 
     let result = match cli.command {
-        Commands::Shell(cmd) => shell::run(cmd),
         Commands::Vcs(cmd) => vcs::run(cmd),
     };
 

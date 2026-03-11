@@ -64,10 +64,6 @@ enum Commands {
 /// Internal subcommands delegated to `mev-internal`.
 #[derive(Subcommand)]
 enum InternalCommand {
-    /// Shell helper generators.
-    #[command(subcommand)]
-    Shell(mev_internal::app::cli::shell::ShellCommand),
-
     /// VCS helpers.
     #[command(subcommand)]
     Vcs(mev_internal::app::cli::vcs::VcsCommand),
@@ -97,7 +93,6 @@ pub fn run() {
 
 fn run_internal(cmd: InternalCommand) -> Result<(), AppError> {
     let result = match cmd {
-        InternalCommand::Shell(c) => mev_internal::app::cli::shell::run(c),
         InternalCommand::Vcs(c) => mev_internal::app::cli::vcs::run(c),
     };
     result.map_err(|e| AppError::Config(e.to_string()))
