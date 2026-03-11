@@ -33,7 +33,6 @@ pub const FULL_SETUP_TAGS: &[&str] = &[
     "go-tools",
     "vscode",
     "cursor",
-    "aider",
     "coder",
     "mlx",
     "xcode",
@@ -65,5 +64,10 @@ mod tests {
     fn resolves_single_tag() {
         let tags = resolve_tags("shell");
         assert_eq!(tags, vec!["shell"]);
+    }
+
+    #[test]
+    fn full_setup_tags_exclude_removed_aider_tag() {
+        assert!(!FULL_SETUP_TAGS.contains(&"aider"));
     }
 }
