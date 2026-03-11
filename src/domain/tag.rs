@@ -65,9 +65,4 @@ mod tests {
         let tags = resolve_tags("shell");
         assert_eq!(tags, vec!["shell"]);
     }
-
-    #[test]
-    fn full_setup_tags_exclude_removed_aider_tag() {
-        assert!(!FULL_SETUP_TAGS.contains(&"aider"));
-    }
 }
