@@ -9,7 +9,7 @@ Increase test coverage across critical domain and adapter paths to exceed the 40
 
 ## Problem
 
-Code coverage is at 20.00%, which is below the 40.00% failure threshold configured in the `just coverage` target. Critical domain transitions and decision paths in `repo_target.rs` and `repository_ref.rs` have zero line coverage, creating high regression risk in core routing and identification logic. Adapter components (`gh`, `git`, `process`) also have missing coverage.
+Code coverage is around 21%, which is below the 40.00% failure threshold configured in the `just coverage` target. Critical domain transitions and decision paths in `repo_target.rs` and `repository_ref.rs` have very low line coverage (currently 0 lines covered according to tarpaulin report because test assertions are failing to execute or cover all paths), creating high regression risk in core routing and identification logic. Adapter components (`gh`, `git`, `process`) also have missing coverage.
 
 ## Evidence
 
@@ -20,11 +20,11 @@ Code coverage is at 20.00%, which is below the 40.00% failure threshold configur
 - source_event: "critical_domain_logic_untested_cov.md"
   path: "crates/mev-internal/src/domain/repository_ref.rs"
   loc: "Entire file"
-  note: "0/48 lines tested. Untested logic paths."
+  note: "0/48 lines tested. Untested logic paths in tarpaulin report."
 - source_event: "critical_domain_logic_untested_cov.md"
   path: "crates/mev-internal/src/domain/repo_target.rs"
   loc: "Entire file"
-  note: "0/7 lines tested. Domain entities are fundamentally untested."
+  note: "0/7 lines tested. Domain entities are fundamentally untested in tarpaulin report."
 - source_event: "coverage_below_threshold_cov.md"
   path: "crates/mev-internal/src/adapters/git.rs"
   loc: "Entire file"
