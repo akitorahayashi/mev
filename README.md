@@ -39,5 +39,5 @@ mev list
 
 ## Documentation
 
-- [Usage](docs/usage.md): Command-line interface references, configuration examples, and environment setup guides.
+- [Documentation Index](docs/README.md): Central index routing to specific documentation areas, such as Usage and Architecture.
 - [Contributing](CONTRIBUTING.md): Development guidelines, coding standards, and testing procedures for contributors.
