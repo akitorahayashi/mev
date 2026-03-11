@@ -4,20 +4,46 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum GhCommand {
-    /// Show the diff between two branches.
-    BranchDiff(crate::gh::branch_diff::BranchDiffArgs),
-
-    /// Print pull request comments.
-    PrComments(crate::gh::pr_comments::PrCommentsArgs),
-
-    /// Merge a pull request only when GitHub reports it as mergeable.
-    PrMergeReady(crate::gh::pr_merge_ready::PrMergeReadyArgs),
+    /// GitHub label operations.
+    #[command(subcommand)]
+    Labels(GhLabelsCommand),
 }
 
 pub fn run(cmd: GhCommand) -> Result<(), Box<dyn std::error::Error>> {
     match cmd {
-        GhCommand::BranchDiff(args) => crate::gh::run(crate::gh::GhCommand::BranchDiff(args)),
-        GhCommand::PrComments(args) => crate::gh::run(crate::gh::GhCommand::PrComments(args)),
-        GhCommand::PrMergeReady(args) => crate::gh::run(crate::gh::GhCommand::PrMergeReady(args)),
+        GhCommand::Labels(cmd) => run_labels(cmd),
+    }
+}
+
+#[derive(Subcommand)]
+pub enum GhLabelsCommand {
+    /// Delete all labels from the target repository.
+    Reset(crate::app::commands::gh::labels_reset::LabelsResetArgs),
+
+    /// Deploy the bundled label catalog to the target repository.
+    Deploy(crate::app::commands::gh::labels_deploy::LabelsDeployArgs),
+}
+
+fn run_labels(cmd: GhLabelsCommand) -> Result<(), Box<dyn std::error::Error>> {
+    match cmd {
+        GhLabelsCommand::Reset(args) => crate::app::commands::gh::labels_reset::run(args),
+        GhLabelsCommand::Deploy(args) => crate::app::commands::gh::labels_deploy::run(args),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn labels_subcommands_are_kebab_case() {
+        let command = GhLabelsCommand::augment_subcommands(clap::Command::new("labels"));
+        let names = command
+            .get_subcommands()
+            .map(|subcommand| subcommand.get_name().to_owned())
+            .collect::<Vec<_>>();
+
+        assert!(names.iter().any(|name| name == "reset"));
+        assert!(names.iter().any(|name| name == "deploy"));
     }
 }
