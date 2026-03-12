@@ -5,7 +5,7 @@ description: Maximize goal-output alignment with minimal cognitive and maintenan
 
 # Effective Prompting
 
-## Primary Objective
+## Core Objective
 
 Maximize goal-output alignment with minimal cognitive and maintenance load.
 

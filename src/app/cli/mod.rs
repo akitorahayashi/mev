@@ -64,11 +64,11 @@ enum Commands {
 /// Internal subcommands delegated to `mev-internal`.
 #[derive(Subcommand)]
 enum InternalCommand {
-    /// Git commands.
+    /// Git helpers.
     #[command(subcommand)]
     Git(mev_internal::app::cli::git::GitCommand),
 
-    /// GitHub CLI commands.
+    /// GitHub CLI helpers.
     #[command(subcommand)]
     Gh(mev_internal::app::cli::gh::GhCommand),
 }

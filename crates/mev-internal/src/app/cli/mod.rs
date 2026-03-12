@@ -16,11 +16,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Git commands.
+    /// Git helpers.
     #[command(subcommand)]
     Git(git::GitCommand),
 
-    /// GitHub CLI commands.
+    /// GitHub CLI helpers.
     #[command(subcommand)]
     Gh(gh::GhCommand),
 }
