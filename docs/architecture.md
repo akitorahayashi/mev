@@ -55,7 +55,7 @@ tests/
 ## Architecture Principles
 
 ### Directory Naming
-- Ambiguous names are forbidden: `core/`, `utils/`, `helpers/` are avoided
+- Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
 - Every file belongs to a clear, specific category
 
 ## Design Rules
