@@ -86,15 +86,14 @@ fn execute_system(
     definitions_dir: &Path,
     output_file: &Path,
 ) -> Result<(), AppError> {
-    let dir_str = definitions_dir.display().to_string();
-    if !ctx.fs.exists(&dir_str) {
+    if !ctx.fs.exists(definitions_dir) {
         return Err(AppError::Backup(format!(
             "definitions directory not found: {}",
             definitions_dir.display()
         )));
     }
 
-    let definitions = load_definitions(&ctx.fs, &dir_str)?;
+    let definitions = load_definitions(&ctx.fs, definitions_dir)?;
     if definitions.is_empty() {
         return Err(AppError::Backup(format!(
             "no setting definitions found in {}",
@@ -116,19 +115,19 @@ fn execute_system(
     lines.push(String::new());
 
     if let Some(parent) = output_file.parent() {
-        ctx.fs.create_dir_all(&parent.display().to_string())?;
+        ctx.fs.create_dir_all(parent)?;
     }
-    ctx.fs.write(&output_file.display().to_string(), lines.join("\n").as_bytes())?;
+    ctx.fs.write(output_file, lines.join("\n").as_bytes())?;
 
     println!("Generated system defaults YAML: {}", output_file.display());
     Ok(())
 }
 
-fn load_definitions(fs: &dyn FsPort, dir: &str) -> Result<Vec<SettingDefinition>, AppError> {
+fn load_definitions(fs: &dyn FsPort, dir: &Path) -> Result<Vec<SettingDefinition>, AppError> {
     let entries = fs.read_dir(dir)?;
-    let mut paths: Vec<String> = entries
+    let mut paths: Vec<PathBuf> = entries
         .into_iter()
-        .filter(|p| p.ends_with(".yml") || p.ends_with(".yaml"))
+        .filter(|p| matches!(p.extension().and_then(|ext| ext.to_str()), Some("yml" | "yaml")))
         .collect();
     paths.sort();
 
@@ -136,7 +135,7 @@ fn load_definitions(fs: &dyn FsPort, dir: &str) -> Result<Vec<SettingDefinition>
     for path in paths {
         let content = fs.read_to_string(&path)?;
         let items: Option<Vec<SettingDefinition>> = serde_yaml::from_str(&content)
-            .map_err(|e| AppError::Backup(format!("invalid YAML in {}: {e}", path)))?;
+            .map_err(|e| AppError::Backup(format!("invalid YAML in {}: {e}", path.display())))?;
         if let Some(items) = items {
             definitions.extend(items);
         }
@@ -263,9 +262,9 @@ fn execute_vscode(ctx: &DependencyContainer, output_file: &Path) -> Result<(), A
         .map_err(|e| AppError::Backup(format!("failed to serialize extensions: {e}")))?;
 
     if let Some(parent) = output_file.parent() {
-        ctx.fs.create_dir_all(&parent.display().to_string())?;
+        ctx.fs.create_dir_all(parent)?;
     }
-    ctx.fs.write(&output_file.display().to_string(), format!("{content}\n").as_bytes())?;
+    ctx.fs.write(output_file, format!("{content}\n").as_bytes())?;
 
     println!("VSCode extensions list backed up to: {}", output_file.display());
     Ok(())
