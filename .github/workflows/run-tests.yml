@@ -1,4 +1,3 @@
-# Automation Topology Source: docs/automation_topology.md
 name: Run Tests
 
 on:
