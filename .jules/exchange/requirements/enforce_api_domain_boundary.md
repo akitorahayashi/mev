@@ -15,7 +15,7 @@ The API layer (`src/app/api.rs`) directly re-exports internal domain types like 
 
 - source_event: "api_domain_reexport_data_arch.md"
   path: "src/app/api.rs"
-  loc: "pub use crate::domain::*"
+  loc: "pub use crate::domain::{backup_target::BackupTarget, error::AppError as Error, execution_plan::ExecutionPlan, ports::identity_store::IdentityState, profile::Profile, vcs_identity::{SwitchIdentity, VcsIdentity}}"
   note: "Directly re-exports `BackupTarget`, `AppError`, `ExecutionPlan`, `IdentityState`, `Profile`, `SwitchIdentity`, and `VcsIdentity`."
 
 ## Change Scope
