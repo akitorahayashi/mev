@@ -27,8 +27,21 @@ jobs:
       - name: Install lint dependencies
         run: uv sync --frozen --extra ci
 
-      - name: Install shell tools
-        run: brew install shellcheck shfmt
+      - name: Ensure mise is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v mise >/dev/null 2>&1; then
+            exit 0
+          fi
+          curl https://mise.run | MISE_VERSION=2026.3.9 sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Trust mise config
+        run: mise trust --yes mise.toml
+
+      - name: Install mise tools
+        run: mise install --locked
 
       - name: Run linters
         run: just check

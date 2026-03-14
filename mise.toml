@@ -3,3 +3,5 @@ min_version = "2026.2.19"
 [tools]
 just = "1.46.0"
 "cargo:cargo-tarpaulin" = "0.35.2"
+shellcheck = "0.11.0"
+shfmt = "3.13.0"
