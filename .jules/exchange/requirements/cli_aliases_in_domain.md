@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2026-03-14"
-author_role: "data_arch"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-Core domain models contain CLI-specific string input parsing logic and aliases, violating Boundary Sovereignty and I/O decoupling rules.
 
 ## Goal
 
 Move CLI input mapping, alias resolution, and string parsing to the adapter or application CLI layer, keeping domain models pure and independent of transport concerns.
+
+## Problem
+
+Core domain models contain CLI-specific string input parsing logic and aliases, violating Boundary Sovereignty and I/O decoupling rules.
 
 ## Context
 
@@ -19,16 +17,20 @@ The architecture rules mandate that domain pure logic ports abstract file system
 
 ## Evidence
 
-- path: "src/domain/vcs_identity.rs"
+- source_event: "cli_aliases_in_domain_data_arch.md"
+  path: "src/domain/vcs_identity.rs"
   loc: "SWITCH_IDENTITY_ALIASES"
   note: "Defines CLI aliases for identity resolution directly in the domain model."
-- path: "src/domain/vcs_identity.rs"
+- source_event: "cli_aliases_in_domain_data_arch.md"
+  path: "src/domain/vcs_identity.rs"
   loc: "resolve_switch_identity"
   note: "Implements string-to-enum resolution using CLI aliases."
-- path: "src/domain/profile.rs"
+- source_event: "cli_aliases_in_domain_data_arch.md"
+  path: "src/domain/profile.rs"
   loc: "PROFILE_ALIASES"
   note: "Defines CLI aliases for profile resolution in the domain layer."
-- path: "src/domain/backup_target.rs"
+- source_event: "cli_aliases_in_domain_data_arch.md"
+  path: "src/domain/backup_target.rs"
   loc: "BackupTarget::from_input"
   note: "Implements CLI input parsing directly within the domain model."
 
@@ -41,3 +43,13 @@ The architecture rules mandate that domain pure logic ports abstract file system
 - `src/app/cli/make.rs`
 - `src/app/cli/create.rs`
 - `src/app/cli/backup.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.

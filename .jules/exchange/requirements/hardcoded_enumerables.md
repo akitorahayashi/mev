@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2026-03-14"
-author_role: "data_arch"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-Enumerable values like Ansible tags and profiles are hardcoded in the domain layer rather than being dynamically generated from authoritative sources.
 
 ## Goal
 
 Generate enumerable values dynamically from authoritative sources (like Ansible role definitions, catalogs, or registries) to ensure extensibility and eliminate maintenance burden.
+
+## Problem
+
+Enumerable values like Ansible tags and profiles are hardcoded in the domain layer rather than being dynamically generated from authoritative sources.
 
 ## Context
 
@@ -19,13 +17,16 @@ According to the design rules, enumerable values must be generated dynamically f
 
 ## Evidence
 
-- path: "src/domain/tag.rs"
+- source_event: "hardcoded_enumerables_data_arch.md"
+  path: "src/domain/tag.rs"
   loc: "FULL_SETUP_TAGS"
   note: "Hardcodes the list of tags for a full environment setup."
-- path: "src/domain/tag.rs"
+- source_event: "hardcoded_enumerables_data_arch.md"
+  path: "src/domain/tag.rs"
   loc: "tag_groups"
   note: "Hardcodes the mappings of tag groups to specific tags."
-- path: "src/domain/profile.rs"
+- source_event: "hardcoded_enumerables_data_arch.md"
+  path: "src/domain/profile.rs"
   loc: "all_profiles"
   note: "Hardcodes the available profiles instead of discovering them dynamically."
 
@@ -34,3 +35,13 @@ According to the design rules, enumerable values must be generated dynamically f
 - `src/domain/tag.rs`
 - `src/domain/profile.rs`
 - `src/adapters/ansible/locator.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.
