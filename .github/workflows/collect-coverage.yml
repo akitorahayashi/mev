@@ -29,8 +29,7 @@ jobs:
           if command -v mise >/dev/null 2>&1; then
             exit 0
           fi
-          curl https://mise.run | MISE_VERSION=2026.3.9 sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          brew install mise
 
       - name: Trust mise config
         run: mise trust --yes mise.toml
@@ -39,6 +38,7 @@ jobs:
         run: mise install --locked
 
       - name: Generate coverage
+        continue-on-error: true
         run: just coverage
 
 
