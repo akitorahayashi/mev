@@ -53,9 +53,9 @@ pub fn list() -> Result<(), AppError> {
 // =============================================================================
 
 /// Deploy role configuration files.
-pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
+pub fn config_deploy(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
     let ctx = ansible_context()?;
-    commands::config::create(&ctx, role, overwrite)
+    commands::config::deploy(&ctx, role, overwrite)
 }
 
 // =============================================================================
