@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-03-14"
-author_role: "cli_sentinel"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The `backup` command uses a `--list` (or `-l`) option to alter the primary execution verb (from "backup" to "list"), breaking the structural consistency of the CLI commands.
 
 ## Goal
 
 Ensure the CLI commands adhere to the strict 'verb [object] arguments' structure and options do not substitute a required object or alter the primary execution verb.
+
+## Problem
+
+The `backup` command uses a `--list` (or `-l`) option to alter the primary execution verb (from "backup" to "list"), breaking the structural consistency of the CLI commands.
 
 ## Context
 
@@ -19,10 +17,12 @@ Using an option to perform a distinct action (like listing available targets ins
 
 ## Evidence
 
-- path: "src/app/cli/backup.rs"
+- source_event: "backup_list_option_cli_sentinel.md"
+  path: "src/app/cli/backup.rs"
   loc: "BackupArgs"
   note: "The `list` boolean flag is defined as an option that alters the command's primary behavior."
-- path: "src/app/cli/backup.rs"
+- source_event: "backup_list_option_cli_sentinel.md"
+  path: "src/app/cli/backup.rs"
   loc: "run"
   note: "The `run` function branches its execution based on the `list` flag, either calling `commands::backup::list_targets()` or `commands::backup::execute()`, demonstrating that the option changes the primary execution verb."
 
@@ -30,3 +30,13 @@ Using an option to perform a distinct action (like listing available targets ins
 
 - `src/app/cli/backup.rs`
 - `src/app/commands/backup/mod.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.

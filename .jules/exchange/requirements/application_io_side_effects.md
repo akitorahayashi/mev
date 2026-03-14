@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-03-14"
-author_role: "structural_arch"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The application layer performs side-effecting I/O directly via `std::fs` operations, bypassing the port/adapter boundary (`FsPort`).
 
 ## Goal
 
 Delegate all local file system mutations to `FsPort` to ensure I/O constraints are decoupled from the application logic orchestration and to permit injecting test doubles for unit-testing.
+
+## Problem
+
+The application layer performs side-effecting I/O directly via `std::fs` operations, bypassing the port/adapter boundary (`FsPort`).
 
 ## Context
 
@@ -19,10 +17,12 @@ Per the "Architecture Rule (Application I/O Side Effects)", application orchestr
 
 ## Evidence
 
-- path: "src/app/commands/deploy_configs.rs"
+- source_event: "application_io_side_effects_structural_arch.md"
+  path: "src/app/commands/deploy_configs.rs"
   loc: "42-74"
   note: "Directly uses `std::fs::remove_dir_all`, `std::fs::create_dir_all`, `std::fs::read_dir`, and `std::fs::copy`."
-- path: "src/app/commands/config/mod.rs"
+- source_event: "application_io_side_effects_structural_arch.md"
+  path: "src/app/commands/config/mod.rs"
   loc: "43-71"
   note: "Directly uses `std::fs::remove_dir_all`, `std::fs::rename`, `std::fs::create_dir_all`, `std::fs::read_dir`, and `std::fs::copy`."
 
@@ -30,3 +30,13 @@ Per the "Architecture Rule (Application I/O Side Effects)", application orchestr
 
 - `src/app/commands/deploy_configs.rs`
 - `src/app/commands/config/mod.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.

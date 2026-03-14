@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-03-14"
-author_role: "cli_sentinel"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-Multiple commands (`create`, `make`, `backup`, `update`, `config`, `switch`, `identity`) write human-readable diagnostics, progress indicators, and logs to `stdout` (`println!`), violating the CLI I/O separation contract.
 
 ## Goal
 
 Ensure that CLI tools strictly output only structured, script-parseable result data to `stdout`, and write all human-readable diagnostics, progress indicators, logs, and errors to `stderr` (`eprintln!`).
+
+## Problem
+
+Multiple commands (`create`, `make`, `backup`, `update`, `config`, `switch`, `identity`) write human-readable diagnostics, progress indicators, and logs to `stdout` (`println!`), violating the CLI I/O separation contract.
 
 ## Context
 
@@ -19,16 +17,20 @@ The Domain I/O Decoupling and CLI I/O Separation rules mandate that `stdout` mus
 
 ## Evidence
 
-- path: "src/app/commands/create/mod.rs"
+- source_event: "io_separation_violation_cli_sentinel.md"
+  path: "src/app/commands/create/mod.rs"
   loc: "execute"
   note: "Writes progress indicators (e.g., `println!(\"mev: Creating {} environment\", plan.profile);`, `println!(\"[{step}/{total}] Running: {tag}\");`) to stdout."
-- path: "src/app/commands/backup/mod.rs"
+- source_event: "io_separation_violation_cli_sentinel.md"
+  path: "src/app/commands/backup/mod.rs"
   loc: "execute"
   note: "Writes progress messages (e.g., `println!(\"Running backup: {}\", target.description());`, `println!(\"✓ Backup completed successfully!\");`) to stdout."
-- path: "src/app/commands/update/mod.rs"
+- source_event: "io_separation_violation_cli_sentinel.md"
+  path: "src/app/commands/update/mod.rs"
   loc: "execute"
   note: "Writes log messages to stdout (e.g., `println!(\"Running upgrade...\");`)."
-- path: "src/app/commands/switch/mod.rs"
+- source_event: "io_separation_violation_cli_sentinel.md"
+  path: "src/app/commands/switch/mod.rs"
   loc: "execute"
   note: "Writes log messages to stdout (e.g., `println!(\"Switching to {} identity...\", identity);`)."
 
@@ -41,3 +43,13 @@ The Domain I/O Decoupling and CLI I/O Separation rules mandate that `stdout` mus
 - `src/app/commands/make/mod.rs`
 - `src/app/commands/switch/mod.rs`
 - `src/app/commands/update/mod.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.

@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2026-03-14"
-author_role: "taxonomy"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The codebase uses vague and overly generic names such as `helpers` and `common` which hide responsibility and create ambiguous boundaries. The role and rule constraints explicitly prohibit naming structures `base`, `common`, `core`, `utils`, or `helpers`.
 
 ## Goal
 
 Remove anti-pattern naming (`common`, `helpers`) from the codebase, replacing them with precise terms that reflect their domain responsibility.
+
+## Problem
+
+The codebase uses vague and overly generic names such as `helpers` and `common` which hide responsibility and create ambiguous boundaries. The role and rule constraints explicitly prohibit naming structures `base`, `common`, `core`, `utils`, or `helpers`.
 
 ## Context
 
@@ -19,19 +17,24 @@ Using vague module and profile names like `common` or describing commands as `he
 
 ## Evidence
 
-- path: "src/domain/profile.rs"
+- source_event: "vague_naming_anti_patterns_taxonomy.md"
+  path: "src/domain/profile.rs"
   loc: "Common,"
   note: "Defines a profile variant named `Common`, which maps to the string 'common'."
-- path: "src/domain/backup_target.rs"
+- source_event: "vague_naming_anti_patterns_taxonomy.md"
+  path: "src/domain/backup_target.rs"
   loc: "common"
   note: "Returns a subpath 'common'."
-- path: "src/app/commands/backup/mod.rs"
+- source_event: "vague_naming_anti_patterns_taxonomy.md"
+  path: "src/app/commands/backup/mod.rs"
   loc: "// Shared helpers"
   note: "Uses 'helpers' to group functions in backup execution."
-- path: "src/app/cli/mod.rs"
+- source_event: "vague_naming_anti_patterns_taxonomy.md"
+  path: "src/app/cli/mod.rs"
   loc: "/// Git helpers."
   note: "CLI help text uses the vague term 'helpers'."
-- path: "crates/mev-internal/src/app/cli/mod.rs"
+- source_event: "vague_naming_anti_patterns_taxonomy.md"
+  path: "crates/mev-internal/src/app/cli/mod.rs"
   loc: "/// GitHub CLI helpers."
   note: "CLI help text uses the vague term 'helpers'."
 
@@ -42,3 +45,13 @@ Using vague module and profile names like `common` or describing commands as `he
 - `src/app/commands/backup/mod.rs`
 - `src/app/cli/mod.rs`
 - `crates/mev-internal/src/app/cli/mod.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.

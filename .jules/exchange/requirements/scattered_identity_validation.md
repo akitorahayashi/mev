@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2026-03-14"
-author_role: "data_arch"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The `VcsIdentity` model allows invalid empty states, causing validation logic to be scattered to application layer call sites.
 
 ## Goal
 
 Enforce invariants at the boundary by using appropriate types (e.g., a non-empty string type or a constructor that returns an error) so invalid states cannot be represented.
+
+## Problem
+
+The `VcsIdentity` model allows invalid empty states, causing validation logic to be scattered to application layer call sites.
 
 ## Context
 
@@ -19,10 +17,12 @@ The First Principles of data architecture require representing valid states only
 
 ## Evidence
 
-- path: "src/domain/vcs_identity.rs"
+- source_event: "scattered_identity_validation_data_arch.md"
+  path: "src/domain/vcs_identity.rs"
   loc: "VcsIdentity"
   note: "Defines name and email as raw strings without validation."
-- path: "src/app/commands/switch/mod.rs"
+- source_event: "scattered_identity_validation_data_arch.md"
+  path: "src/app/commands/switch/mod.rs"
   loc: "execute"
   note: "Call site manually validates that vcs_identity.name and vcs_identity.email are not empty, proving invariants are not enforced by the type."
 
@@ -31,3 +31,13 @@ The First Principles of data architecture require representing valid states only
 - `src/domain/vcs_identity.rs`
 - `src/app/commands/switch/mod.rs`
 - `src/app/commands/identity/mod.rs`
+
+## Constraints
+
+- Ensure all changes align with architecture and design rules.
+- Maintain tests for all new logic.
+
+## Acceptance Criteria
+
+- The problem is fully resolved.
+- Pre-commit checks and tests pass.
