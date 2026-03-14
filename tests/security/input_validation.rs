@@ -11,7 +11,7 @@ fn create_rejects_invalid_profile() {
         .args(["create", "nonexistent"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("Error")));
+        .stderr(predicate::str::contains("Error: invalid profile: nonexistent"));
 }
 
 #[test]
@@ -22,5 +22,5 @@ fn switch_rejects_invalid_profile() {
         .args(["switch", "badprofile"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("Error")));
+        .stderr(predicate::str::contains("Error: invalid identity: invalid identity 'badprofile'. Valid: personal (p), work (w)"));
 }
