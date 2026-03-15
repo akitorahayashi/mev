@@ -10,13 +10,8 @@ use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
-
-pub use crate::domain::backup_target::BackupTarget;
-pub use crate::domain::error::AppError as Error;
-pub use crate::domain::execution_plan::ExecutionPlan;
-pub use crate::domain::ports::identity_store::IdentityState;
-pub use crate::domain::profile::Profile;
-pub use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
+use crate::domain::profile::Profile;
+use crate::domain::vcs_identity::SwitchIdentity;
 
 // =============================================================================
 // Create
