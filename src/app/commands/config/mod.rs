@@ -12,13 +12,7 @@ pub fn deploy(
     role: Option<String>,
     overwrite: bool,
 ) -> Result<(), AppError> {
-    deploy_internal(
-        &ctx.fs,
-        &ctx.ansible,
-        &ctx.local_config_root,
-        role,
-        overwrite,
-    )
+    deploy_internal(&ctx.fs, &ctx.ansible, &ctx.local_config_root, role, overwrite)
 }
 
 fn deploy_internal(
@@ -89,14 +83,17 @@ mod tests {
         let mut ansible = FakeAnsiblePort::new();
 
         ansible.roles_with_config = vec!["git".to_string()];
-        ansible.roles_config_dir.insert("git".to_string(), PathBuf::from("/ansible/roles/git/config"));
+        ansible
+            .roles_config_dir
+            .insert("git".to_string(), PathBuf::from("/ansible/roles/git/config"));
 
         fs.add_dir(std::path::Path::new("/ansible/roles/git/config"));
         fs.add_file(std::path::Path::new("/ansible/roles/git/config/.gitconfig"), "git config");
 
         let local_config_root = PathBuf::from("/local/config");
 
-        let result = deploy_internal(&fs, &ansible, &local_config_root, Some("git".to_string()), false);
+        let result =
+            deploy_internal(&fs, &ansible, &local_config_root, Some("git".to_string()), false);
         assert!(result.is_ok());
 
         assert!(fs.exists(std::path::Path::new("/local/config/git/.gitconfig")));

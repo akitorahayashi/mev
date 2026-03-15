@@ -290,7 +290,7 @@ fn resolve_definitions_dir(
         .ansible
         .role_config_dir(target.role())
         .map(|p| p.join(target.subpath()).join("definitions"))
-        .unwrap_or_else(|| PathBuf::new());
+        .unwrap_or_default();
 
     DefinitionsDirResolution::PackageDefault {
         resolved_dir: package_default_dir,
