@@ -28,7 +28,8 @@ pub(crate) fn resolve_profile(input: &str) -> Option<Profile> {
 
 /// Validate that the input maps to a machine-specific profile (required for `create`).
 fn validate_machine_profile(input: &str) -> Result<Profile, AppError> {
-    let profile = resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))?;
+    let profile =
+        resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))?;
     if !profile.is_machine_profile() {
         return Err(AppError::InvalidProfile(format!(
             "'{input}' is not a machine profile. Valid: {}",
