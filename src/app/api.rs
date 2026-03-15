@@ -1,8 +1,8 @@
-//! Stable library entrypoints for programmatic consumers.
+//! Internal entrypoints for command execution.
 //!
-//! Each public function wires context creation to command execution.
-//! `cli/` modules delegate here; external callers (tests, scripts) can
-//! import these directly via `mev::api::*`.
+//! Each function wires context creation to command execution.
+//! `cli/` modules and other crate-level callers delegate here to ensure
+//! consistent execution logic.
 
 use crate::adapters::ansible::locator;
 use crate::adapters::version_source::install_script::InstallScriptVersionSource;
