@@ -6,7 +6,7 @@ use crate::adapters::process;
 use crate::domain::label_catalog::LabelSpec;
 use crate::domain::repository_ref::RepositoryRef;
 
-pub fn list_label_names(repo: &RepositoryRef) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+pub fn list_label_names(repo: &RepositoryRef) -> Result<Vec<String>, crate::domain::error::InternalError> {
     let output = process::run_output(
         build_gh_command(
             &["label", "list", "--limit", "9999", "--json", "name", "--jq", ".[].name"],
@@ -26,7 +26,7 @@ pub fn list_label_names(repo: &RepositoryRef) -> Result<Vec<String>, Box<dyn std
 pub fn delete_label(
     repo: &RepositoryRef,
     label_name: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), crate::domain::error::InternalError> {
     process::run_status(
         build_gh_command(&["label", "delete", label_name, "--yes"], repo),
         &format!("gh label delete {label_name} --repo {}", repo.as_gh_repo_arg()),
@@ -36,7 +36,7 @@ pub fn delete_label(
 pub fn create_label(
     repo: &RepositoryRef,
     label: &LabelSpec,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), crate::domain::error::InternalError> {
     process::run_status(
         build_gh_command(
             &[

@@ -11,7 +11,7 @@ pub struct LabelSpec {
     pub color: String,
 }
 
-pub fn load_bundled_labels() -> Result<Vec<LabelSpec>, Box<dyn std::error::Error>> {
+pub fn load_bundled_labels() -> Result<Vec<LabelSpec>, crate::domain::error::InternalError> {
     Ok(serde_json::from_str(LABELS_JSON)?)
 }
 

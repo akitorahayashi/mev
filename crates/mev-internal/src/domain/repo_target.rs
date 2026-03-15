@@ -5,7 +5,7 @@ use crate::domain::repository_ref::RepositoryRef;
 pub fn resolve_repo_ref(
     explicit_repo: Option<&str>,
     origin_url: Option<&str>,
-) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
+) -> Result<RepositoryRef, crate::domain::error::InternalError> {
     if let Some(explicit_repo) = explicit_repo {
         return RepositoryRef::from_repo_arg(explicit_repo);
     }
@@ -14,8 +14,9 @@ pub fn resolve_repo_ref(
         return RepositoryRef::from_remote_url(origin_url);
     }
 
-    Err("could not determine repository: pass --repo or run inside a git repository with origin"
-        .into())
+    Err(crate::domain::error::InternalError::MissingRequirement(
+        "could not determine repository: pass --repo or run inside a git repository with origin".to_string()
+    ))
 }
 
 #[cfg(test)]

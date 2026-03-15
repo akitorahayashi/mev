@@ -8,7 +8,7 @@ pub enum GitCommand {
     DeleteSubmodule(crate::app::commands::git::delete_submodule::DeleteSubmoduleArgs),
 }
 
-pub fn run(cmd: GitCommand) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run(cmd: GitCommand) -> Result<(), crate::domain::error::InternalError> {
     match cmd {
         GitCommand::DeleteSubmodule(args) => crate::app::commands::git::delete_submodule::run(args),
     }

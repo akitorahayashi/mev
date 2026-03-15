@@ -15,8 +15,8 @@ impl JjPort for JjCli {
     }
 
     fn get_identity(&self) -> Result<(String, String), AppError> {
-        let name = read_config("user.name");
-        let email = read_config("user.email");
+        let name = read_config("user.name")?;
+        let email = read_config("user.email")?;
         Ok((name, email))
     }
 
@@ -37,11 +37,19 @@ fn run_config(key: &str, value: &str) -> Result<(), AppError> {
     Ok(())
 }
 
-fn read_config(key: &str) -> String {
-    Command::new("jj")
+fn read_config(key: &str) -> Result<String, AppError> {
+    let output = Command::new("jj")
         .args(["config", "get", key])
         .output()
-        .ok()
-        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-        .unwrap_or_default()
+        .map_err(|e| AppError::Config(format!("failed to read jj config: {e}")))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        if output.status.code() == Some(1) && stderr.contains("not found") {
+            return Ok(String::new());
+        }
+        return Err(AppError::Config(format!("jj config get {key} failed: {stderr}")));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
