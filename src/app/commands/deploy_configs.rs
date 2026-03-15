@@ -70,10 +70,7 @@ pub fn copy_dir_recursive(src: &Path, dst: &Path, fs: &dyn FsPort) -> Result<(),
     fs.create_dir_all(dst)?;
     for src_path in fs.read_dir(src)? {
         let file_name = src_path.file_name().ok_or_else(|| {
-            AppError::Io(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                "invalid file name",
-            ))
+            AppError::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, "invalid file name"))
         })?;
         let dst_path = dst.join(file_name);
         if fs.is_dir(&src_path) {
@@ -98,7 +95,9 @@ mod tests {
 
         ansible.roles_with_config = vec!["zsh".to_string()];
         ansible.tag_to_role.insert("shell".to_string(), "zsh".to_string());
-        ansible.roles_config_dir.insert("zsh".to_string(), PathBuf::from("/ansible/roles/zsh/config"));
+        ansible
+            .roles_config_dir
+            .insert("zsh".to_string(), PathBuf::from("/ansible/roles/zsh/config"));
 
         fs.add_dir(Path::new("/ansible/roles/zsh/config"));
         fs.add_file(Path::new("/ansible/roles/zsh/config/.zshrc"), "zsh config");

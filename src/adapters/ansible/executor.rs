@@ -206,11 +206,7 @@ impl AnsiblePort for AnsibleAdapter {
         }
 
         let config_dir = self.roles_dir.join(role).join("config");
-        if config_dir.is_dir() {
-            Some(config_dir)
-        } else {
-            None
-        }
+        if config_dir.is_dir() { Some(config_dir) } else { None }
     }
 }
 

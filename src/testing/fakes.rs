@@ -55,10 +55,7 @@ impl FsPort for FakeFsPort {
     fn read_to_string(&self, path: &Path) -> Result<String, AppError> {
         self.events.lock().unwrap().push(format!("read_to_string: {}", path.display()));
         self.files.lock().unwrap().get(path).cloned().ok_or_else(|| {
-            AppError::Io(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "file not found",
-            ))
+            AppError::Io(std::io::Error::new(std::io::ErrorKind::NotFound, "file not found"))
         })
     }
 
@@ -73,17 +70,19 @@ impl FsPort for FakeFsPort {
 
         let mut entries = Vec::new();
         for file in self.files.lock().unwrap().keys() {
-            if let Some(parent) = file.parent() {
-                if parent == path && !entries.contains(file) {
-                    entries.push(file.clone());
-                }
+            if let Some(parent) = file.parent()
+                && parent == path
+                && !entries.contains(file)
+            {
+                entries.push(file.clone());
             }
         }
         for dir in self.dirs.lock().unwrap().iter() {
-            if let Some(parent) = dir.parent() {
-                if parent == path && !entries.contains(dir) {
-                    entries.push(dir.clone());
-                }
+            if let Some(parent) = dir.parent()
+                && parent == path
+                && !entries.contains(dir)
+            {
+                entries.push(dir.clone());
             }
         }
         Ok(entries)
@@ -91,10 +90,10 @@ impl FsPort for FakeFsPort {
 
     fn write(&self, path: &Path, content: &[u8]) -> Result<(), AppError> {
         self.events.lock().unwrap().push(format!("write: {}", path.display()));
-        self.files.lock().unwrap().insert(
-            path.to_path_buf(),
-            String::from_utf8_lossy(content).to_string(),
-        );
+        self.files
+            .lock()
+            .unwrap()
+            .insert(path.to_path_buf(), String::from_utf8_lossy(content).to_string());
         Ok(())
     }
 
@@ -109,20 +108,14 @@ impl FsPort for FakeFsPort {
         let mut dirs = self.dirs.lock().unwrap();
         let mut files = self.files.lock().unwrap();
 
-        let to_remove_dirs: Vec<PathBuf> = dirs
-            .iter()
-            .filter(|p| p.starts_with(path))
-            .cloned()
-            .collect();
+        let to_remove_dirs: Vec<PathBuf> =
+            dirs.iter().filter(|p| p.starts_with(path)).cloned().collect();
         for p in to_remove_dirs {
             dirs.remove(&p);
         }
 
-        let to_remove_files: Vec<PathBuf> = files
-            .keys()
-            .filter(|p| p.starts_with(path))
-            .cloned()
-            .collect();
+        let to_remove_files: Vec<PathBuf> =
+            files.keys().filter(|p| p.starts_with(path)).cloned().collect();
         for p in to_remove_files {
             files.remove(&p);
         }
@@ -134,10 +127,7 @@ impl FsPort for FakeFsPort {
         self.events.lock().unwrap().push(format!("copy: {} -> {}", from.display(), to.display()));
         let content = {
             self.files.lock().unwrap().get(from).cloned().ok_or_else(|| {
-                AppError::Io(std::io::Error::new(
-                    std::io::ErrorKind::NotFound,
-                    "file not found",
-                ))
+                AppError::Io(std::io::Error::new(std::io::ErrorKind::NotFound, "file not found"))
             })?
         };
         self.files.lock().unwrap().insert(to.to_path_buf(), content.clone());
@@ -149,11 +139,8 @@ impl FsPort for FakeFsPort {
         let mut dirs = self.dirs.lock().unwrap();
         let mut files = self.files.lock().unwrap();
 
-        let to_rename_dirs: Vec<PathBuf> = dirs
-            .iter()
-            .filter(|p| p.starts_with(from))
-            .cloned()
-            .collect();
+        let to_rename_dirs: Vec<PathBuf> =
+            dirs.iter().filter(|p| p.starts_with(from)).cloned().collect();
         for p in to_rename_dirs {
             dirs.remove(&p);
             let rel = p.strip_prefix(from).unwrap();
