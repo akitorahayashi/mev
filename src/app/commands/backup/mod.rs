@@ -220,7 +220,9 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
         match target.parse::<f64>() {
             Ok(f) => (f as i64).to_string(),
             Err(e) => {
-                eprintln!("Warning: failed to parse '{target}' as int/float: {e}. Using raw string.");
+                eprintln!(
+                    "Warning: failed to parse '{target}' as int/float: {e}. Using raw string."
+                );
                 target
             }
         }

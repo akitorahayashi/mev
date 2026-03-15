@@ -48,7 +48,7 @@ fn read_config(key: &str) -> Result<String, AppError> {
         // Ignore exit code 1 if it means key not found, just return empty, but for proper error handling
         // git config exits with 1 if the key was not found. We can treat an empty result as not found.
         if output.status.code() == Some(1) && stderr.is_empty() {
-             return Ok(String::new());
+            return Ok(String::new());
         }
         return Err(AppError::Config(format!("git config --global {key} failed: {stderr}")));
     }

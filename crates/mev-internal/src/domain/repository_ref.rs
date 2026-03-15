@@ -13,7 +13,9 @@ impl RepositoryRef {
         match parts.as_slice() {
             [owner, name] => Self::new(None, owner, name),
             [host, owner, name] => Self::new(Some(*host), owner, name),
-            _ => Err(crate::domain::error::InternalError::Parse(format!("invalid repository reference '{input}'"))),
+            _ => Err(crate::domain::error::InternalError::Parse(format!(
+                "invalid repository reference '{input}'"
+            ))),
         }
     }
 
@@ -50,7 +52,9 @@ impl RepositoryRef {
         name: &str,
     ) -> Result<Self, crate::domain::error::InternalError> {
         if owner.is_empty() || name.is_empty() {
-            return Err(crate::domain::error::InternalError::Validation("repository owner and name must not be empty".into()));
+            return Err(crate::domain::error::InternalError::Validation(
+                "repository owner and name must not be empty".into(),
+            ));
         }
 
         Ok(Self {
@@ -61,23 +65,28 @@ impl RepositoryRef {
     }
 }
 
-fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::InternalError> {
-    let (host, path) =
-        input.split_once(':').ok_or_else(|| crate::domain::error::InternalError::Parse(format!("invalid ssh remote '{input}'")))?;
+fn parse_scp_like_remote(
+    input: &str,
+) -> Result<RepositoryRef, crate::domain::error::InternalError> {
+    let (host, path) = input.split_once(':').ok_or_else(|| {
+        crate::domain::error::InternalError::Parse(format!("invalid ssh remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
 fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::InternalError> {
-    let (host, path) =
-        input.split_once('/').ok_or_else(|| crate::domain::error::InternalError::Parse(format!("invalid ssh remote '{input}'")))?;
+    let (host, path) = input.split_once('/').ok_or_else(|| {
+        crate::domain::error::InternalError::Parse(format!("invalid ssh remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
 fn parse_https_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::InternalError> {
-    let (host, path) =
-        input.split_once('/').ok_or_else(|| crate::domain::error::InternalError::Parse(format!("invalid https remote '{input}'")))?;
+    let (host, path) = input.split_once('/').ok_or_else(|| {
+        crate::domain::error::InternalError::Parse(format!("invalid https remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
@@ -87,7 +96,9 @@ fn split_owner_name(path: &str) -> Result<(&str, &str), crate::domain::error::In
     let parts = trimmed.split('/').collect::<Vec<_>>();
     match parts.as_slice() {
         [owner, name] => Ok((owner, name)),
-        _ => Err(crate::domain::error::InternalError::Parse(format!("invalid repository path '{path}'"))),
+        _ => Err(crate::domain::error::InternalError::Parse(format!(
+            "invalid repository path '{path}'"
+        ))),
     }
 }
 

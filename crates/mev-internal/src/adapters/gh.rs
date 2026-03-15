@@ -6,7 +6,9 @@ use crate::adapters::process;
 use crate::domain::label_catalog::LabelSpec;
 use crate::domain::repository_ref::RepositoryRef;
 
-pub fn list_label_names(repo: &RepositoryRef) -> Result<Vec<String>, crate::domain::error::InternalError> {
+pub fn list_label_names(
+    repo: &RepositoryRef,
+) -> Result<Vec<String>, crate::domain::error::InternalError> {
     let output = process::run_output(
         build_gh_command(
             &["label", "list", "--limit", "9999", "--json", "name", "--jq", ".[].name"],

@@ -63,10 +63,7 @@ pub struct AnsibleAdapter {
 
 impl AnsibleAdapter {
     /// Construct from an ansible asset directory, loading the tag catalog from playbook.yml.
-    pub fn new(
-        ansible_dir: PathBuf,
-        local_config_root: PathBuf,
-    ) -> Result<Self, AppError> {
+    pub fn new(ansible_dir: PathBuf, local_config_root: PathBuf) -> Result<Self, AppError> {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 

@@ -16,10 +16,7 @@ pub fn run_status(
         None => format!("{description} was terminated by a signal"),
     };
 
-    Err(crate::domain::error::InternalError::Process {
-        message,
-        exit_code: status.code(),
-    })
+    Err(crate::domain::error::InternalError::Process { message, exit_code: status.code() })
 }
 
 pub fn run_output(

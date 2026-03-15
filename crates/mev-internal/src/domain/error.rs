@@ -37,10 +37,7 @@ pub enum InternalError {
 
 impl From<std::io::Error> for InternalError {
     fn from(err: std::io::Error) -> Self {
-        Self::Process {
-            message: format!("io error: {err}"),
-            exit_code: None,
-        }
+        Self::Process { message: format!("io error: {err}"), exit_code: None }
     }
 }
 

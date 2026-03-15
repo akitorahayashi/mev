@@ -6,7 +6,9 @@ use std::process::Command;
 
 use crate::adapters::process;
 
-pub fn delete_submodule_worktree(submodule_path: &str) -> Result<(), crate::domain::error::InternalError> {
+pub fn delete_submodule_worktree(
+    submodule_path: &str,
+) -> Result<(), crate::domain::error::InternalError> {
     process::run_status(
         git_command(["submodule", "deinit", "-f", submodule_path]),
         &format!("git submodule deinit -f {submodule_path}"),
@@ -20,7 +22,9 @@ pub fn delete_submodule_worktree(submodule_path: &str) -> Result<(), crate::doma
     Ok(())
 }
 
-pub fn remove_submodule_module_dir(submodule_path: &str) -> Result<(), crate::domain::error::InternalError> {
+pub fn remove_submodule_module_dir(
+    submodule_path: &str,
+) -> Result<(), crate::domain::error::InternalError> {
     let modules_path = Path::new(".git").join("modules").join(submodule_path);
     if modules_path.exists() {
         fs::remove_dir_all(&modules_path)?;

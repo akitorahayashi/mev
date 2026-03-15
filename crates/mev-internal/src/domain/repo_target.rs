@@ -15,7 +15,8 @@ pub fn resolve_repo_ref(
     }
 
     Err(crate::domain::error::InternalError::MissingRequirement(
-        "could not determine repository: pass --repo or run inside a git repository with origin".to_string()
+        "could not determine repository: pass --repo or run inside a git repository with origin"
+            .to_string(),
     ))
 }
 
