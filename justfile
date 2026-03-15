@@ -45,7 +45,7 @@ fix:
     just internal::fix
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
-        shfmt -w -d $files; \
+        mise exec -- shfmt -w -d $files; \
     fi
     uv run ansible-lint src/assets/ansible/ --fix
     just --fmt --unstable
@@ -57,7 +57,7 @@ check:
     just internal::check
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
-        shellcheck $files; \
+        mise exec -- shellcheck $files; \
     fi
     uv run ansible-lint src/assets/ansible/
     just --fmt --check --unstable
