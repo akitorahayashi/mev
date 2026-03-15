@@ -9,7 +9,7 @@ use crate::domain::error::AppError;
 pub enum Profile {
     Macbook,
     MacMini,
-    WorkspaceConfig,
+    Common,
 }
 
 impl Profile {
@@ -18,7 +18,7 @@ impl Profile {
         match self {
             Self::Macbook => "macbook",
             Self::MacMini => "mac-mini",
-            Self::WorkspaceConfig => "workspace",
+            Self::Common => "common",
         }
     }
 
@@ -31,7 +31,7 @@ impl Profile {
         match self {
             Self::Macbook => &["mbk"],
             Self::MacMini => &["mmn"],
-            Self::WorkspaceConfig => &["wsc"],
+            Self::Common => &["cmn"],
         }
     }
 }
@@ -44,7 +44,7 @@ impl fmt::Display for Profile {
 
 /// All profile variants in display order.
 pub fn all_profiles() -> &'static [Profile] {
-    &[Profile::WorkspaceConfig, Profile::Macbook, Profile::MacMini]
+    &[Profile::Common, Profile::Macbook, Profile::MacMini]
 }
 
 /// Input aliases mapping user-supplied strings to `Profile` variants.
@@ -53,8 +53,8 @@ const PROFILE_ALIASES: &[(&str, Profile)] = &[
     ("mbk", Profile::Macbook),
     ("mac-mini", Profile::MacMini),
     ("mmn", Profile::MacMini),
-    ("workspace", Profile::WorkspaceConfig),
-    ("wsc", Profile::WorkspaceConfig),
+    ("common", Profile::Common),
+    ("cmn", Profile::Common),
 ];
 
 /// Resolve a profile identifier or alias to a `Profile`.
@@ -85,7 +85,7 @@ pub fn validate_machine_profile(input: &str) -> Result<Profile, AppError> {
     Ok(profile)
 }
 
-/// Validate any profile including `workspace` (required for `make`).
+/// Validate any profile including `common` (required for `make`).
 pub fn validate_profile(input: &str) -> Result<Profile, AppError> {
     resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))
 }
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn resolves_canonical_profiles() {
-        assert_eq!(resolve_profile("workspace"), Some(Profile::WorkspaceConfig));
+        assert_eq!(resolve_profile("common"), Some(Profile::Common));
         assert_eq!(resolve_profile("macbook"), Some(Profile::Macbook));
         assert_eq!(resolve_profile("mac-mini"), Some(Profile::MacMini));
     }
@@ -105,7 +105,7 @@ mod tests {
     fn resolves_aliases() {
         assert_eq!(resolve_profile("mbk"), Some(Profile::Macbook));
         assert_eq!(resolve_profile("mmn"), Some(Profile::MacMini));
-        assert_eq!(resolve_profile("wsc"), Some(Profile::WorkspaceConfig));
+        assert_eq!(resolve_profile("cmn"), Some(Profile::Common));
     }
 
     #[test]
@@ -114,8 +114,8 @@ mod tests {
     }
 
     #[test]
-    fn validate_machine_profile_rejects_workspace() {
-        assert!(validate_machine_profile("workspace").is_err());
+    fn validate_machine_profile_rejects_common() {
+        assert!(validate_machine_profile("common").is_err());
     }
 
     #[test]
@@ -128,6 +128,6 @@ mod tests {
     fn profile_as_str_roundtrips() {
         assert_eq!(Profile::Macbook.as_str(), "macbook");
         assert_eq!(Profile::MacMini.as_str(), "mac-mini");
-        assert_eq!(Profile::WorkspaceConfig.as_str(), "workspace");
+        assert_eq!(Profile::Common.as_str(), "common");
     }
 }
