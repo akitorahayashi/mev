@@ -42,7 +42,8 @@ pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
             } else {
                 format!(" ({})", aliases.join(", "))
             };
-            let suffix = if matches!(p, profile::Profile::WorkspaceConfig) { " (default)" } else { "" };
+            let suffix =
+                if matches!(p, profile::Profile::WorkspaceConfig) { " (default)" } else { "" };
             format!("{p}{alias_str}{suffix}")
         })
         .collect();
