@@ -347,7 +347,11 @@ mod tests {
             env::remove_var(PIPX_HOME_ENV);
         }
         let result = resolve_ansible_playbook_bin();
-        if let Some(h) = old_home { unsafe { env::set_var("HOME", h) } } else { unsafe { env::remove_var("HOME") } };
+        if let Some(h) = old_home {
+            unsafe { env::set_var("HOME", h) }
+        } else {
+            unsafe { env::remove_var("HOME") }
+        };
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -362,7 +366,11 @@ mod tests {
             env::remove_var("HOME");
         }
         let result = resolve_ansible_playbook_bin();
-        if let Some(h) = old_home { unsafe { env::set_var("HOME", h) } } else { unsafe { env::remove_var("HOME") } };
+        if let Some(h) = old_home {
+            unsafe { env::set_var("HOME", h) }
+        } else {
+            unsafe { env::remove_var("HOME") }
+        };
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
@@ -396,7 +404,8 @@ mod tests {
             tag_to_role: HashMap::new(),
         };
 
-        let cmd_result = adapter.build_command("my_profile", &["tag1".to_string(), "tag2".to_string()], true);
+        let cmd_result =
+            adapter.build_command("my_profile", &["tag1".to_string(), "tag2".to_string()], true);
         unsafe { env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV) };
 
         assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
