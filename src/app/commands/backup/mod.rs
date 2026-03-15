@@ -36,15 +36,7 @@ enum DefinitionsDirResolution {
 }
 
 /// Execute the `backup` command for a given target.
-pub fn execute(ctx: &DependencyContainer, target_input: &str) -> Result<(), AppError> {
-    let target = BackupTarget::from_input(target_input).ok_or_else(|| {
-        let valid: Vec<_> = BackupTarget::all().iter().map(|t| t.name()).collect();
-        AppError::Backup(format!(
-            "unknown backup target '{target_input}'. Valid targets: {}",
-            valid.join(", ")
-        ))
-    })?;
-
+pub fn execute(ctx: &DependencyContainer, target: BackupTarget) -> Result<(), AppError> {
     let local_config_dir = ctx.local_config_root.join(target.role()).join(target.subpath());
 
     println!("Running backup: {}", target.description());

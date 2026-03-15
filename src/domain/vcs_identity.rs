@@ -35,37 +35,9 @@ impl fmt::Display for SwitchIdentity {
     }
 }
 
-/// Input aliases mapping user-supplied strings to `SwitchIdentity` variants.
-const SWITCH_IDENTITY_ALIASES: &[(&str, SwitchIdentity)] = &[
-    ("p", SwitchIdentity::Personal),
-    ("personal", SwitchIdentity::Personal),
-    ("w", SwitchIdentity::Work),
-    ("work", SwitchIdentity::Work),
-];
-
-/// Resolve a switch identity input (alias or canonical) to a `SwitchIdentity`.
-pub fn resolve_switch_identity(input: &str) -> Option<SwitchIdentity> {
-    let lower = input.to_lowercase();
-    for (alias, identity) in SWITCH_IDENTITY_ALIASES {
-        if lower == *alias {
-            return Some(*identity);
-        }
-    }
-    None
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn resolves_switch_identities() {
-        assert_eq!(resolve_switch_identity("p"), Some(SwitchIdentity::Personal));
-        assert_eq!(resolve_switch_identity("personal"), Some(SwitchIdentity::Personal));
-        assert_eq!(resolve_switch_identity("w"), Some(SwitchIdentity::Work));
-        assert_eq!(resolve_switch_identity("work"), Some(SwitchIdentity::Work));
-        assert_eq!(resolve_switch_identity("unknown"), None);
-    }
 
     #[test]
     fn switch_identity_as_str_roundtrips() {

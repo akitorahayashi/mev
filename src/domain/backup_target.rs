@@ -10,15 +10,6 @@ pub enum BackupTarget {
 }
 
 impl BackupTarget {
-    /// Resolve a user input string to a backup target.
-    pub fn from_input(s: &str) -> Option<Self> {
-        match s {
-            "system" => Some(Self::System),
-            "vscode" | "vscode-extensions" => Some(Self::Vscode),
-            _ => None,
-        }
-    }
-
     /// All available backup targets.
     pub fn all() -> &'static [Self] {
         &[Self::System, Self::Vscode]
@@ -63,26 +54,6 @@ impl fmt::Display for BackupTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn backup_target_resolves_system() {
-        assert_eq!(BackupTarget::from_input("system"), Some(BackupTarget::System));
-    }
-
-    #[test]
-    fn backup_target_resolves_vscode() {
-        assert_eq!(BackupTarget::from_input("vscode"), Some(BackupTarget::Vscode));
-    }
-
-    #[test]
-    fn backup_target_resolves_vscode_extensions_alias() {
-        assert_eq!(BackupTarget::from_input("vscode-extensions"), Some(BackupTarget::Vscode));
-    }
-
-    #[test]
-    fn backup_target_rejects_unknown() {
-        assert_eq!(BackupTarget::from_input("unknown"), None);
-    }
 
     #[test]
     fn backup_target_all_returns_expected_set() {
