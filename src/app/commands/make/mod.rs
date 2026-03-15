@@ -39,7 +39,7 @@ pub fn execute(
     )?;
 
     println!("Running tags: {}", plan.tags.join(", "));
-    if plan.profile != Profile::WorkspaceConfig {
+    if plan.profile != Profile::Common {
         println!("Profile: {}", plan.profile);
     }
     println!();
