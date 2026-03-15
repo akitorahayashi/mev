@@ -28,7 +28,9 @@ jobs:
         run: uv sync --frozen --extra ci
 
       - name: Install shell tools
-        run: brew install shellcheck shfmt
+        uses: jdx/mise-action@v2
+        with:
+          install: true
 
       - name: Run linters
         run: just check
