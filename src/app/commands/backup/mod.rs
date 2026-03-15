@@ -55,7 +55,7 @@ pub fn execute(ctx: &DependencyContainer, target_input: &str) -> Result<(), AppE
             let definitions_dir = match resolve_definitions_dir(&local_config_dir, ctx, &target) {
                 DefinitionsDirResolution::Local(path) => path,
                 DefinitionsDirResolution::PackageDefault { resolved_dir, missing_local_dir } => {
-                    println!(
+                    eprintln!(
                         "Local definitions not found at {}. Using package defaults.",
                         missing_local_dir.display()
                     );

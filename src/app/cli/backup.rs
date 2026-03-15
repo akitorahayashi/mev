@@ -6,27 +6,16 @@ use crate::app::api;
 use crate::domain::error::AppError;
 
 #[derive(Args)]
-#[command(group(
-    clap::ArgGroup::new("action")
-        .required(true)
-        .args(["list", "target"]),
-))]
 pub struct BackupArgs {
-    #[arg(short = 'l', long = "list", aliases = ["ls"], action = clap::ArgAction::SetTrue, help = "List available backup targets")]
-    pub list: bool,
-
-    /// Backup target (system, vscode).
-    pub target: Option<String>,
+    /// Backup target (system, vscode, or 'list' to show available targets).
+    pub target: String,
 }
 
 pub fn run(args: BackupArgs) -> Result<(), AppError> {
-    if args.list {
+    if args.target == "list" {
         api::backup_list();
         Ok(())
-    } else if let Some(target) = args.target {
-        api::backup(target.as_str())
     } else {
-        // Controlled by ArgGroup(required=true)
-        unreachable!("clap ensures either list or target is present")
+        api::backup(args.target.as_str())
     }
 }
