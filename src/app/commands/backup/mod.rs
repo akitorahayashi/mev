@@ -166,13 +166,7 @@ fn format_value(def: &SettingDefinition, raw_value: &str) -> String {
             } else {
                 raw_value.to_string()
             };
-            match serde_json::to_string(&value) {
-                Ok(json) => json,
-                Err(e) => {
-                    eprintln!("Warning: failed to JSON-serialize '{value}': {e}. Using raw value.");
-                    value
-                }
-            }
+            serde_json::to_string(&value).unwrap_or(value)
         }
     }
 }
@@ -207,23 +201,11 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
         raw_value.trim().to_string()
     };
     if as_float {
-        match target.parse::<f64>() {
-            Ok(f) => f.to_string(),
-            Err(e) => {
-                eprintln!("Warning: failed to parse '{target}' as float: {e}. Using raw string.");
-                target
-            }
-        }
+        target.parse::<f64>().map(|f| f.to_string()).unwrap_or(target)
     } else if let Ok(i) = target.parse::<i64>() {
         i.to_string()
     } else {
-        match target.parse::<f64>() {
-            Ok(f) => (f as i64).to_string(),
-            Err(e) => {
-                eprintln!("Warning: failed to parse '{target}' as int/float: {e}. Using raw string.");
-                target
-            }
-        }
+        target.parse::<f64>().map(|f| (f as i64).to_string()).unwrap_or(target)
     }
 }
 
@@ -244,13 +226,7 @@ fn format_string(raw_value: &str, key: &str, default: &serde_yaml::Value) -> Str
         value = value.replacen(&home, "$HOME", 1);
     }
 
-    match serde_json::to_string(&value) {
-        Ok(json) => json,
-        Err(e) => {
-            eprintln!("Warning: failed to JSON-serialize string '{value}': {e}. Using raw string.");
-            value
-        }
-    }
+    serde_json::to_string(&value).unwrap_or(value)
 }
 
 fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {

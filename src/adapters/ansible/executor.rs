@@ -66,7 +66,7 @@ impl AnsibleAdapter {
     pub fn new(
         ansible_dir: PathBuf,
         local_config_root: PathBuf,
-    ) -> Result<Self, AppError> {
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
@@ -148,11 +148,10 @@ impl AnsiblePort for AnsibleAdapter {
 
         if !status.success() {
             let code = status.code();
-            let message = match code {
-                Some(c) => format!("ansible-playbook exited with code {c}"),
-                None => "ansible-playbook was terminated by a signal".to_string(),
-            };
-            return Err(AppError::AnsibleExecution { message, exit_code: code });
+            return Err(AppError::AnsibleExecution {
+                message: format!("ansible-playbook exited with code {}", code.unwrap_or(-1)),
+                exit_code: code,
+            });
         }
 
         Ok(())
@@ -206,11 +205,9 @@ impl AnsiblePort for AnsibleAdapter {
 type Catalog = (HashMap<String, Vec<String>>, HashMap<String, String>);
 
 /// Load tag-to-role mappings from a playbook.yml file.
-fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, AppError> {
-    let content = std::fs::read_to_string(playbook_path)
-        .map_err(|e| AppError::Config(format!("failed to read playbook: {e}")))?;
-    let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)
-        .map_err(|e| AppError::Config(format!("failed to parse playbook yaml: {e}")))?;
+fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(playbook_path)?;
+    let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)?;
 
     let role_key = serde_yaml::Value::String("role".to_string());
     let tags_key = serde_yaml::Value::String("tags".to_string());
@@ -238,9 +235,10 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, AppError> {
                             if let Some(existing) = tag_to_role.get(tag)
                                 && existing != &name
                             {
-                                return Err(AppError::Config(format!(
+                                return Err(format!(
                                     "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
-                                )));
+                                )
+                                .into());
                             }
                             tag_to_role.insert(tag.clone(), name.clone());
                         }
