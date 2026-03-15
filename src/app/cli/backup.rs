@@ -6,6 +6,11 @@ use crate::app::api;
 use crate::domain::error::AppError;
 
 #[derive(Args)]
+#[command(group(
+    clap::ArgGroup::new("action")
+        .required(true)
+        .args(["list", "target"]),
+))]
 pub struct BackupArgs {
     #[arg(short = 'l', long = "list", aliases = ["ls"], action = clap::ArgAction::SetTrue, help = "List available backup targets")]
     pub list: bool,
@@ -21,6 +26,7 @@ pub fn run(args: BackupArgs) -> Result<(), AppError> {
     } else if let Some(target) = args.target {
         api::backup(target.as_str())
     } else {
-        Err(AppError::Backup("Target is required unless --list is used.".to_string()))
+        // Controlled by ArgGroup(required=true)
+        unreachable!("clap ensures either list or target is present")
     }
 }
