@@ -110,6 +110,11 @@ pub fn backup(target: &str) -> Result<(), AppError> {
     commands::backup::execute(&ctx, target)
 }
 
+/// List available backup targets.
+pub fn backup_list() {
+    commands::backup::list_targets();
+}
+
 fn ansible_context() -> Result<DependencyContainer, AppError> {
     let ansible_dir = locator::locate_ansible_dir()?;
     DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))

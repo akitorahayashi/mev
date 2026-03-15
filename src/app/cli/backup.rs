@@ -2,9 +2,7 @@
 
 use clap::Args;
 
-use crate::adapters::ansible::locator;
-use crate::app::DependencyContainer;
-use crate::app::commands;
+use crate::app::api;
 use crate::domain::error::AppError;
 
 #[derive(Args)]
@@ -17,14 +15,11 @@ pub struct BackupArgs {
 }
 
 pub fn run(args: BackupArgs) -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-
     if args.list {
-        commands::backup::list_targets();
+        api::backup_list();
         Ok(())
     } else if let Some(target) = args.target {
-        commands::backup::execute(&ctx, &target)
+        api::backup(target.as_str())
     } else {
         Err(AppError::Backup("Target is required unless --list is used.".to_string()))
     }
