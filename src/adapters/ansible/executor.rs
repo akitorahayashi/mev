@@ -279,8 +279,40 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
 mod tests {
     use super::*;
     use serial_test::serial;
+    use std::ffi::OsString;
     use std::fs;
     use tempfile::tempdir;
+
+    struct EnvGuard {
+        key: String,
+        old_value: Option<OsString>,
+    }
+
+    impl EnvGuard {
+        fn set(key: &str, value: impl Into<OsString>) -> Self {
+            let key_str = key.to_string();
+            let old_value = env::var_os(&key_str);
+            unsafe { env::set_var(&key_str, value.into()) };
+            Self { key: key_str, old_value }
+        }
+
+        fn remove(key: &str) -> Self {
+            let key_str = key.to_string();
+            let old_value = env::var_os(&key_str);
+            unsafe { env::remove_var(&key_str) };
+            Self { key: key_str, old_value }
+        }
+    }
+
+    impl Drop for EnvGuard {
+        fn drop(&mut self) {
+            if let Some(ref old) = self.old_value {
+                unsafe { env::set_var(&self.key, old) };
+            } else {
+                unsafe { env::remove_var(&self.key) };
+            }
+        }
+    }
 
     #[test]
     #[serial]
@@ -289,11 +321,8 @@ mod tests {
         let bin_path = dir.path().join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        unsafe { env::set_var(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path) };
+        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path);
         let result = resolve_ansible_playbook_bin();
-        unsafe {
-            env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV);
-        }
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -301,11 +330,8 @@ mod tests {
     #[test]
     #[serial]
     fn test_resolve_ansible_playbook_bin_custom_invalid() {
-        unsafe { env::set_var(ANSIBLE_PLAYBOOK_BIN_ENV, "/invalid/path/to/ansible-playbook") };
+        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, "/invalid/path/to/ansible-playbook");
         let result = resolve_ansible_playbook_bin();
-        unsafe {
-            env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV);
-        }
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
@@ -320,12 +346,10 @@ mod tests {
         let bin_path = bin_dir.join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        unsafe {
-            env::set_var(PIPX_HOME_ENV, &pipx_home);
-            env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV);
-        }
+        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
+        let _pipx_guard = EnvGuard::set(PIPX_HOME_ENV, &pipx_home);
+
         let result = resolve_ansible_playbook_bin();
-        unsafe { env::remove_var(PIPX_HOME_ENV) };
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -333,7 +357,6 @@ mod tests {
     #[test]
     #[serial]
     fn test_resolve_ansible_playbook_bin_home_valid() {
-        let old_home = env::var_os("HOME");
         let dir = tempdir().unwrap();
         let home = dir.path().join("home");
         let bin_dir = home.join(".local").join("pipx").join("venvs").join("ansible").join("bin");
@@ -341,17 +364,11 @@ mod tests {
         let bin_path = bin_dir.join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        unsafe {
-            env::set_var("HOME", &home);
-            env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV);
-            env::remove_var(PIPX_HOME_ENV);
-        }
+        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
+        let _pipx_guard = EnvGuard::remove(PIPX_HOME_ENV);
+        let _home_guard = EnvGuard::set("HOME", &home);
+
         let result = resolve_ansible_playbook_bin();
-        if let Some(h) = old_home {
-            unsafe { env::set_var("HOME", h) }
-        } else {
-            unsafe { env::remove_var("HOME") }
-        };
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -359,18 +376,11 @@ mod tests {
     #[test]
     #[serial]
     fn test_resolve_ansible_playbook_bin_not_found() {
-        let old_home = env::var_os("HOME");
-        unsafe {
-            env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV);
-            env::remove_var(PIPX_HOME_ENV);
-            env::remove_var("HOME");
-        }
+        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
+        let _pipx_guard = EnvGuard::remove(PIPX_HOME_ENV);
+        let _home_guard = EnvGuard::remove("HOME");
+
         let result = resolve_ansible_playbook_bin();
-        if let Some(h) = old_home {
-            unsafe { env::set_var("HOME", h) }
-        } else {
-            unsafe { env::remove_var("HOME") }
-        };
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
@@ -394,7 +404,7 @@ mod tests {
         // Mock playbook binary resolution via ANSIBLE_PLAYBOOK_BIN_ENV
         let bin_path = dir.path().join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
-        unsafe { env::set_var(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path) };
+        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path);
 
         let adapter = AnsibleAdapter {
             ansible_dir: ansible_dir.clone(),
@@ -406,7 +416,6 @@ mod tests {
 
         let cmd_result =
             adapter.build_command("my_profile", &["tag1".to_string(), "tag2".to_string()], true);
-        unsafe { env::remove_var(ANSIBLE_PLAYBOOK_BIN_ENV) };
 
         assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
         let cmd = cmd_result.unwrap();
@@ -419,6 +428,7 @@ mod tests {
         assert_eq!(args[0], playbook_path.to_string_lossy());
         assert!(args.contains(&"profile=my_profile".to_string()));
         assert!(args.contains(&format!("config_dir_abs_path={}", ansible_dir.display())));
+        assert!(args.contains(&format!("repo_root_path={}", dir.path().display())));
         assert!(args.contains(&"--tags".to_string()));
         assert!(args.contains(&"tag1,tag2".to_string()));
         assert!(args.contains(&"-vvv".to_string()));
