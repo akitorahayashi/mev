@@ -33,6 +33,10 @@ impl FakeFsPort {
 
     pub fn add_dir(&self, path: &Path) {
         let mut dirs = self.dirs.lock().unwrap();
+        Self::add_path_and_parents(&mut dirs, path);
+    }
+
+    fn add_path_and_parents(dirs: &mut HashSet<PathBuf>, path: &Path) {
         let mut current = path;
         while current != Path::new("") && current != Path::new("/") {
             dirs.insert(current.to_path_buf());
@@ -157,16 +161,7 @@ impl FsPort for FakeFsPort {
             let rel = p.strip_prefix(from).unwrap();
             files.insert(to.join(rel), content);
             if let Some(parent) = to.join(rel).parent() {
-                let mut current = parent;
-                while current != Path::new("") && current != Path::new("/") {
-                    dirs.insert(current.to_path_buf());
-                    if let Some(p) = current.parent() {
-                        current = p;
-                    } else {
-                        break;
-                    }
-                }
-                dirs.insert(parent.to_path_buf());
+                Self::add_path_and_parents(&mut dirs, parent);
             }
         }
 
