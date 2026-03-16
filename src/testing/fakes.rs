@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use crate::domain::error::AppError;
+use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::fs::FsPort;
 
 pub struct FakeFsPort {
@@ -32,10 +33,6 @@ impl FakeFsPort {
 
     pub fn add_dir(&self, path: &Path) {
         let mut dirs = self.dirs.lock().unwrap();
-        Self::add_path_and_parents(&mut dirs, path);
-    }
-
-    fn add_path_and_parents(dirs: &mut HashSet<PathBuf>, path: &Path) {
         let mut current = path;
         while current != Path::new("") && current != Path::new("/") {
             dirs.insert(current.to_path_buf());
@@ -160,7 +157,16 @@ impl FsPort for FakeFsPort {
             let rel = p.strip_prefix(from).unwrap();
             files.insert(to.join(rel), content);
             if let Some(parent) = to.join(rel).parent() {
-                Self::add_path_and_parents(&mut dirs, parent);
+                let mut current = parent;
+                while current != Path::new("") && current != Path::new("/") {
+                    dirs.insert(current.to_path_buf());
+                    if let Some(p) = current.parent() {
+                        current = p;
+                    } else {
+                        break;
+                    }
+                }
+                dirs.insert(parent.to_path_buf());
             }
         }
 
@@ -169,5 +175,58 @@ impl FsPort for FakeFsPort {
 
     fn is_dir(&self, path: &Path) -> bool {
         self.dirs.lock().unwrap().contains(path)
+    }
+}
+
+pub struct FakeAnsiblePort {
+    pub roles_with_config: Vec<String>,
+    pub tag_to_role: HashMap<String, String>,
+    pub roles_config_dir: HashMap<String, PathBuf>,
+    pub all_tags: Vec<String>,
+    pub tags_by_role: HashMap<String, Vec<String>>,
+    pub events: Mutex<Vec<String>>,
+}
+
+impl FakeAnsiblePort {
+    pub fn new() -> Self {
+        Self {
+            roles_with_config: Vec::new(),
+            tag_to_role: HashMap::new(),
+            roles_config_dir: HashMap::new(),
+            all_tags: Vec::new(),
+            tags_by_role: HashMap::new(),
+            events: Mutex::new(Vec::new()),
+        }
+    }
+}
+
+impl AnsiblePort for FakeAnsiblePort {
+    fn run_playbook(&self, profile: &str, tags: &[String], _verbose: bool) -> Result<(), AppError> {
+        self.events.lock().unwrap().push(format!("run_playbook: {} with tags {:?}", profile, tags));
+        Ok(())
+    }
+
+    fn roles_with_config(&self) -> Result<Vec<String>, AppError> {
+        Ok(self.roles_with_config.clone())
+    }
+
+    fn all_tags(&self) -> Vec<String> {
+        self.all_tags.clone()
+    }
+
+    fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
+        &self.tags_by_role
+    }
+
+    fn role_for_tag(&self, tag: &str) -> Option<&str> {
+        self.tag_to_role.get(tag).map(|s| s.as_str())
+    }
+
+    fn validate_tags(&self, tags: &[String]) -> bool {
+        tags.iter().all(|t| self.all_tags.contains(t))
+    }
+
+    fn role_config_dir(&self, role: &str) -> Option<PathBuf> {
+        self.roles_config_dir.get(role).cloned()
     }
 }
