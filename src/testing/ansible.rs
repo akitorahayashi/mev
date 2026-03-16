@@ -41,12 +41,12 @@ impl AnsiblePort for FakeAnsiblePort {
         self.all_tags.clone()
     }
 
-    fn tags_by_role(&self) -> HashMap<String, Vec<String>> {
-        self.tags_by_role.clone()
+    fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
+        &self.tags_by_role
     }
 
-    fn role_for_tag(&self, tag: &str) -> Option<String> {
-        self.tag_to_role.get(tag).cloned()
+    fn role_for_tag(&self, tag: &str) -> Option<&str> {
+        self.tag_to_role.get(tag).map(|s| s.as_str())
     }
 
     fn validate_tags(&self, tags: &[String]) -> bool {

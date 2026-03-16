@@ -30,11 +30,11 @@ pub fn deploy_for_tags(
         let Some(role) = ansible.role_for_tag(tag) else {
             continue;
         };
-        if !available.contains(&role) || !deployed.insert(role.clone()) {
+        if !available.contains(role) || !deployed.insert(role.to_string()) {
             continue;
         }
 
-        let target = local_config_root.join(&role);
+        let target = local_config_root.join(role);
         if fs.exists(&target) && !overwrite {
             continue;
         }
@@ -45,7 +45,7 @@ pub fn deploy_for_tags(
             })?;
         }
 
-        let Some(source) = ansible.role_config_dir(&role) else {
+        let Some(source) = ansible.role_config_dir(role) else {
             continue;
         };
 
