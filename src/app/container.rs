@@ -21,7 +21,7 @@ use crate::adapters::vscode::cli::VscodeCli;
 /// Application context wiring ports to concrete adapters.
 #[allow(dead_code)]
 pub struct DependencyContainer {
-    pub ansible_dir: PathBuf,
+    ansible_dir: PathBuf,
     _ansible_temp_dir: Option<TempDir>,
     pub local_config_root: PathBuf,
     pub ansible: AnsibleAdapter,
@@ -42,7 +42,7 @@ impl DependencyContainer {
         let (ansible_dir, ansible_temp_dir) = ansible_dir.into_parts();
 
         Ok(Self {
-            ansible: AnsibleAdapter::new(ansible_dir.clone(), local_config_root.clone())?,
+            ansible: AnsibleAdapter::new(&ansible_dir, &local_config_root)?,
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
             version_source: InstallScriptVersionSource,
             git: GitCli,
@@ -60,7 +60,7 @@ impl DependencyContainer {
     pub fn for_identity() -> Result<Self, Box<dyn std::error::Error>> {
         let local_config_root = paths::local_config_root()?;
         Ok(Self {
-            ansible: AnsibleAdapter::empty(local_config_root.clone()),
+            ansible: AnsibleAdapter::empty(&local_config_root),
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
             version_source: InstallScriptVersionSource,
             git: GitCli,
