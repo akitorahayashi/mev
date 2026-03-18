@@ -46,7 +46,7 @@ concurrency:
 
 env:
   WAIT_MINUTES: ${{ github.event_name == 'workflow_call' && (inputs.wait_minutes || 30) || github.event.inputs.wait_minutes || 30 }}
-  MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event.inputs.mock == 'true' || false }}
+  MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event.inputs.mock == 'true' }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
   JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || github.event.inputs.mock == 'true') && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
