@@ -8,7 +8,7 @@ use crate::domain::error::AppError;
 
 /// Resolve a user input string to a backup target.
 fn resolve_backup_target(s: &str) -> Option<BackupTarget> {
-    match s {
+    match s.to_lowercase().as_str() {
         "system" => Some(BackupTarget::System),
         "vscode" | "vscode-extensions" => Some(BackupTarget::Vscode),
         _ => None,
@@ -56,6 +56,7 @@ mod tests {
     #[test]
     fn resolves_system() {
         assert_eq!(resolve_backup_target("system"), Some(BackupTarget::System));
+        assert_eq!(resolve_backup_target("System"), Some(BackupTarget::System));
     }
 
     #[test]

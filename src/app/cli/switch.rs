@@ -17,12 +17,10 @@ const SWITCH_IDENTITY_ALIASES: &[(&str, SwitchIdentity)] = &[
 /// Resolve a switch identity input (alias or canonical) to a `SwitchIdentity`.
 fn resolve_switch_identity(input: &str) -> Option<SwitchIdentity> {
     let lower = input.to_lowercase();
-    for (alias, identity) in SWITCH_IDENTITY_ALIASES {
-        if lower == *alias {
-            return Some(*identity);
-        }
-    }
-    None
+    SWITCH_IDENTITY_ALIASES
+        .iter()
+        .find(|&&(alias, _)| alias == lower.as_str())
+        .map(|&(_, identity)| identity)
 }
 
 #[derive(Args)]

@@ -18,12 +18,11 @@ const PROFILE_ALIASES: &[(&str, Profile)] = &[
 
 /// Resolve a profile identifier or alias to a `Profile`.
 pub(crate) fn resolve_profile(input: &str) -> Option<Profile> {
-    for &(alias, profile) in PROFILE_ALIASES {
-        if input == alias {
-            return Some(profile);
-        }
-    }
-    None
+    let lower_input = input.to_lowercase();
+    PROFILE_ALIASES
+        .iter()
+        .find(|&&(alias, _)| alias == lower_input.as_str())
+        .map(|&(_, profile)| profile)
 }
 
 /// Validate that the input maps to a machine-specific profile (required for `create`).
@@ -75,6 +74,7 @@ mod tests {
     #[test]
     fn validate_machine_profile_accepts_macbook() {
         assert_eq!(validate_machine_profile("macbook").unwrap(), Profile::Macbook);
+        assert_eq!(validate_machine_profile("MACBOOK").unwrap(), Profile::Macbook);
         assert_eq!(validate_machine_profile("mbk").unwrap(), Profile::Macbook);
     }
 }
