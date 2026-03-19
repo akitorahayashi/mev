@@ -192,7 +192,8 @@ mod tests {
             ),
         );
 
-        delete_submodule_worktree("test-submodule").expect("delete_submodule_worktree should succeed");
+        delete_submodule_worktree("test-submodule")
+            .expect("delete_submodule_worktree should succeed");
 
         let executed_args = fs::read_to_string(args_file).unwrap();
         let mut lines = executed_args.lines();
