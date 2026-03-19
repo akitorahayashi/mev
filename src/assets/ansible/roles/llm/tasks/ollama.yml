@@ -11,10 +11,10 @@
   when: "'ollama' in ansible_run_tags"
 
 # Model synchronization tasks (only for ollama-models tag)
-- name: "Load common models configuration"
+- name: "Load default models configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/llm/common/models.yml"
-    name: llm_common_models
+    file: "{{ local_config_root }}/llm/default/models.yml"
+    name: llm_default_models
   when: "'ollama-models' in ansible_run_tags"
 
 - name: "Load profile models configuration"
@@ -26,7 +26,7 @@
 
 - name: "Set Ollama models to sync"
   ansible.builtin.set_fact:
-    llm_ollama_models_to_sync: "{{ (llm_common_models.ollama | default([])) + (llm_profile_models.ollama | default([])) }}"
+    llm_ollama_models_to_sync: "{{ (llm_default_models.ollama | default([])) + (llm_profile_models.ollama | default([])) }}"
   when: "'ollama-models' in ansible_run_tags"
 
 - name: "Check if Ollama server is running on port 11434"
