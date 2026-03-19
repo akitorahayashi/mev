@@ -22,3 +22,29 @@ impl ExecutionPlan {
         Self { profile, tags, verbose }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::tag::FULL_SETUP_TAGS;
+
+    #[test]
+    fn full_setup_contains_all_tags() {
+        let plan = ExecutionPlan::full_setup(Profile::Macbook, true);
+        assert_eq!(plan.profile, Profile::Macbook);
+        assert!(plan.verbose);
+
+        let expected_tags: Vec<String> = FULL_SETUP_TAGS.iter().map(|s| (*s).to_string()).collect();
+        assert_eq!(plan.tags, expected_tags);
+    }
+
+    #[test]
+    fn make_contains_provided_tags() {
+        let tags = vec!["tag1".to_string(), "tag2".to_string()];
+        let plan = ExecutionPlan::make(Profile::MacMini, tags.clone(), false);
+
+        assert_eq!(plan.profile, Profile::MacMini);
+        assert!(!plan.verbose);
+        assert_eq!(plan.tags, tags);
+    }
+}
