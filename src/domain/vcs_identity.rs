@@ -6,7 +6,7 @@
 use std::fmt;
 
 /// Name and email pair applied to global VCS configuration.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone)]
 pub struct VcsIdentity {
     pub name: String,
     pub email: String,
