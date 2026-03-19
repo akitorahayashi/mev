@@ -157,10 +157,7 @@ mod tests {
 
     #[test]
     fn from_repo_arg_fails_on_invalid_format() {
-        let result = RepositoryRef::from_repo_arg("just-one-part");
-        assert!(result.is_err());
-
-        let result2 = RepositoryRef::from_repo_arg("host/owner/repo/extra");
-        assert!(result2.is_err());
+        assert!(RepositoryRef::from_repo_arg("just-one-part").is_err());
+        assert!(RepositoryRef::from_repo_arg("host/owner/repo/extra").is_err());
     }
 }

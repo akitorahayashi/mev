@@ -34,8 +34,7 @@ mod tests {
         assert_eq!(plan.profile, Profile::Macbook);
         assert!(plan.verbose);
 
-        let expected_tags: Vec<String> = FULL_SETUP_TAGS.iter().map(|s| (*s).to_string()).collect();
-        assert_eq!(plan.tags, expected_tags);
+        assert_eq!(plan.tags.as_slice(), FULL_SETUP_TAGS);
     }
 
     #[test]
