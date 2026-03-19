@@ -160,4 +160,25 @@ mod tests {
         assert!(RepositoryRef::from_repo_arg("just-one-part").is_err());
         assert!(RepositoryRef::from_repo_arg("host/owner/repo/extra").is_err());
     }
+
+    #[test]
+    fn from_repo_arg_fails_on_empty_owner_or_name() {
+        assert!(RepositoryRef::from_repo_arg("/repo").is_err());
+        assert!(RepositoryRef::from_repo_arg("owner/").is_err());
+        assert!(RepositoryRef::from_repo_arg("/").is_err());
+        assert!(RepositoryRef::from_repo_arg("host//repo").is_err());
+        assert!(RepositoryRef::from_repo_arg("host/owner/").is_err());
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_invalid_ssh_remote() {
+        assert!(RepositoryRef::from_remote_url("git@github.com").is_err());
+        assert!(RepositoryRef::from_remote_url("ssh://git@github.com").is_err());
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_invalid_https_remote() {
+        assert!(RepositoryRef::from_remote_url("https://github.com").is_err());
+        assert!(RepositoryRef::from_remote_url("https://github.com/owner").is_err());
+    }
 }
