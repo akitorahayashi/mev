@@ -24,7 +24,7 @@ pub trait IdentityStore {
 }
 
 /// Top-level identity model stored on disk.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct IdentityState {
     pub personal: VcsIdentity,
     pub work: VcsIdentity,

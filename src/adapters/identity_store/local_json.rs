@@ -6,54 +6,6 @@ use crate::domain::error::AppError;
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
 use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
 
-#[derive(serde::Serialize, serde::Deserialize)]
-struct VcsIdentityDto {
-    name: String,
-    email: String,
-}
-
-impl From<VcsIdentityDto> for VcsIdentity {
-    fn from(dto: VcsIdentityDto) -> Self {
-        Self {
-            name: dto.name,
-            email: dto.email,
-        }
-    }
-}
-
-impl From<&VcsIdentity> for VcsIdentityDto {
-    fn from(identity: &VcsIdentity) -> Self {
-        Self {
-            name: identity.name.clone(),
-            email: identity.email.clone(),
-        }
-    }
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-struct IdentityStateDto {
-    personal: VcsIdentityDto,
-    work: VcsIdentityDto,
-}
-
-impl From<IdentityStateDto> for IdentityState {
-    fn from(dto: IdentityStateDto) -> Self {
-        Self {
-            personal: dto.personal.into(),
-            work: dto.work.into(),
-        }
-    }
-}
-
-impl From<&IdentityState> for IdentityStateDto {
-    fn from(state: &IdentityState) -> Self {
-        Self {
-            personal: (&state.personal).into(),
-            work: (&state.work).into(),
-        }
-    }
-}
-
 pub struct IdentityFileStore {
     identity_path: PathBuf,
 }
@@ -76,17 +28,15 @@ impl IdentityStore for IdentityFileStore {
     fn load(&self) -> Result<IdentityState, AppError> {
         if self.identity_path.exists() {
             let content = std::fs::read_to_string(&self.identity_path)?;
-            let dto: IdentityStateDto = serde_json::from_str(&content)
-                .map_err(|e| AppError::Config(format!("failed to parse identity config: {e}")))?;
-            return Ok(dto.into());
+            return serde_json::from_str(&content)
+                .map_err(|e| AppError::Config(format!("failed to parse identity config: {e}")));
         }
 
         if self.legacy_config_path().exists() {
             let content = std::fs::read_to_string(self.legacy_config_path())?;
-            let dto: IdentityStateDto = serde_json::from_str(&content).map_err(|e| {
+            let state: IdentityState = serde_json::from_str(&content).map_err(|e| {
                 AppError::Config(format!("failed to parse legacy identity config: {e}"))
             })?;
-            let state: IdentityState = dto.into();
 
             // Migrate automatically to the new path.
             if let Err(e) = self.save(&state) {
@@ -105,8 +55,7 @@ impl IdentityStore for IdentityFileStore {
             .ok_or_else(|| AppError::Config("identity path has no parent directory".to_string()))?;
         std::fs::create_dir_all(parent)?;
 
-        let dto: IdentityStateDto = state.into();
-        let content = serde_json::to_string_pretty(&dto)
+        let content = serde_json::to_string_pretty(state)
             .map_err(|e| AppError::Config(format!("failed to serialize identity config: {e}")))?;
 
         // Atomic write: write to temp file in same directory, then rename.
