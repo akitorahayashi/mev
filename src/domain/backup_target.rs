@@ -65,12 +65,7 @@ const BACKUP_TARGET_ALIASES: &[(&str, BackupTarget)] = &[
 
 /// Resolve a backup target identifier or alias to a `BackupTarget`.
 pub fn resolve_backup_target(input: &str) -> Option<BackupTarget> {
-    for &(alias, target) in BACKUP_TARGET_ALIASES {
-        if input == alias {
-            return Some(target);
-        }
-    }
-    None
+    BACKUP_TARGET_ALIASES.iter().find(|&&(alias, _)| alias == input).map(|&(_, target)| target)
 }
 
 /// Validate that the input maps to a `BackupTarget`.
@@ -78,7 +73,7 @@ pub fn validate_backup_target(input: &str) -> Result<BackupTarget, AppError> {
     resolve_backup_target(input).ok_or_else(|| {
         let valid: Vec<_> = BackupTarget::all().iter().map(|t| t.name()).collect();
         AppError::InvalidBackupTarget(format!(
-            "unknown backup target '{input}'. Valid targets: {}",
+            "'{input}' is not a valid target. Valid targets: {}",
             valid.join(", ")
         ))
     })
@@ -118,7 +113,7 @@ mod tests {
         let err = validate_backup_target("unknown").unwrap_err();
         match err {
             AppError::InvalidBackupTarget(msg) => {
-                assert!(msg.contains("unknown backup target 'unknown'"));
+                assert!(msg.contains("'unknown' is not a valid target"));
             }
             _ => panic!("Expected InvalidBackupTarget error"),
         }
