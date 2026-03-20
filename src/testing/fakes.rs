@@ -104,19 +104,17 @@ impl FsPort for FakeFsPort {
 
     fn remove_dir_all(&self, path: &Path) -> Result<(), AppError> {
         self.events.borrow_mut().push(format!("remove_dir_all: {}", path.display()));
-        let mut dirs = self.dirs.borrow_mut();
-        let mut files = self.files.borrow_mut();
 
         let to_remove_dirs: Vec<PathBuf> =
-            dirs.iter().filter(|p| p.starts_with(path)).cloned().collect();
+            self.dirs.borrow().iter().filter(|p| p.starts_with(path)).cloned().collect();
         for p in to_remove_dirs {
-            dirs.remove(&p);
+            self.dirs.borrow_mut().remove(&p);
         }
 
         let to_remove_files: Vec<PathBuf> =
-            files.keys().filter(|p| p.starts_with(path)).cloned().collect();
+            self.files.borrow().keys().filter(|p| p.starts_with(path)).cloned().collect();
         for p in to_remove_files {
-            files.remove(&p);
+            self.files.borrow_mut().remove(&p);
         }
 
         Ok(())
@@ -135,37 +133,30 @@ impl FsPort for FakeFsPort {
 
     fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError> {
         self.events.borrow_mut().push(format!("rename: {} -> {}", from.display(), to.display()));
-        let mut dirs = self.dirs.borrow_mut();
-        let mut files = self.files.borrow_mut();
 
         let to_rename_dirs: Vec<PathBuf> =
-            dirs.iter().filter(|p| p.starts_with(from)).cloned().collect();
+            self.dirs.borrow().iter().filter(|p| p.starts_with(from)).cloned().collect();
         for p in to_rename_dirs {
-            dirs.remove(&p);
+            self.dirs.borrow_mut().remove(&p);
             let rel = p.strip_prefix(from).unwrap();
-            dirs.insert(to.join(rel));
+            self.dirs.borrow_mut().insert(to.join(rel));
         }
 
-        let to_rename_files: Vec<(PathBuf, String)> = files
+        let to_rename_files: Vec<(PathBuf, String)> = self
+            .files
+            .borrow()
             .iter()
             .filter(|(p, _)| p.starts_with(from))
             .map(|(p, c)| (p.clone(), c.clone()))
             .collect();
+
         for (p, content) in to_rename_files {
-            files.remove(&p);
+            self.files.borrow_mut().remove(&p);
             let rel = p.strip_prefix(from).unwrap();
-            files.insert(to.join(rel), content);
-            if let Some(parent) = to.join(rel).parent() {
-                let mut current = parent;
-                while current != Path::new("") && current != Path::new("/") {
-                    dirs.insert(current.to_path_buf());
-                    if let Some(p) = current.parent() {
-                        current = p;
-                    } else {
-                        break;
-                    }
-                }
-                dirs.insert(parent.to_path_buf());
+            let new_path = to.join(rel);
+            self.files.borrow_mut().insert(new_path.clone(), content);
+            if let Some(parent) = new_path.parent() {
+                self.add_dir(parent);
             }
         }
 
