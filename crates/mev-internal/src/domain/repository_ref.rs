@@ -157,28 +157,45 @@ mod tests {
 
     #[test]
     fn from_repo_arg_fails_on_invalid_format() {
-        assert!(RepositoryRef::from_repo_arg("just-one-part").is_err());
-        assert!(RepositoryRef::from_repo_arg("host/owner/repo/extra").is_err());
+        let cases = ["just-one-part", "host/owner/repo/extra"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
+            );
+        }
     }
 
     #[test]
     fn from_repo_arg_fails_on_empty_owner_or_name() {
-        assert!(RepositoryRef::from_repo_arg("/repo").is_err());
-        assert!(RepositoryRef::from_repo_arg("owner/").is_err());
-        assert!(RepositoryRef::from_repo_arg("/").is_err());
-        assert!(RepositoryRef::from_repo_arg("host//repo").is_err());
-        assert!(RepositoryRef::from_repo_arg("host/owner/").is_err());
+        let cases = ["/repo", "owner/", "/", "host//repo", "host/owner/"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
+            );
+        }
     }
 
     #[test]
     fn from_remote_url_fails_on_invalid_ssh_remote() {
-        assert!(RepositoryRef::from_remote_url("git@github.com").is_err());
-        assert!(RepositoryRef::from_remote_url("ssh://git@github.com").is_err());
+        let cases = ["git@github.com", "ssh://git@github.com"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_remote_url(input).is_err(),
+                "from_remote_url should fail for '{input}'"
+            );
+        }
     }
 
     #[test]
     fn from_remote_url_fails_on_invalid_https_remote() {
-        assert!(RepositoryRef::from_remote_url("https://github.com").is_err());
-        assert!(RepositoryRef::from_remote_url("https://github.com/owner").is_err());
+        let cases = ["https://github.com", "https://github.com/owner"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_remote_url(input).is_err(),
+                "from_remote_url should fail for '{input}'"
+            );
+        }
     }
 }
