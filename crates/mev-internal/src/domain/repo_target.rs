@@ -43,7 +43,8 @@ mod tests {
 
     #[test]
     fn explicit_repo_only() {
-        let repo = resolve_repo_ref(Some("owner/repo"), None).expect("explicit repo without origin should win");
+        let repo = resolve_repo_ref(Some("owner/repo"), None)
+            .expect("explicit repo without origin should win");
         assert_eq!(repo.as_gh_repo_arg(), "owner/repo");
     }
 }
