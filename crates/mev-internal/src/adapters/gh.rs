@@ -63,47 +63,19 @@ fn build_gh_command(args: &[&str], repo: &RepositoryRef) -> Command {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-    use std::fs;
-    use std::os::unix::fs::PermissionsExt;
-
     use serial_test::serial;
-    use tempfile::TempDir;
+
+    use std::fs;
 
     use super::*;
-
-    struct PathGuard {
-        original_path: String,
-    }
-
-    impl Drop for PathGuard {
-        fn drop(&mut self) {
-            unsafe {
-                env::set_var("PATH", &self.original_path);
-            }
-        }
-    }
-
-    fn create_mock_gh(temp_dir: &TempDir, script_content: &str) -> PathGuard {
-        let gh_path = temp_dir.path().join("gh");
-        fs::write(&gh_path, script_content).unwrap();
-        let mut perms = fs::metadata(&gh_path).unwrap().permissions();
-        perms.set_mode(0o755);
-        fs::set_permissions(&gh_path, perms).unwrap();
-
-        let original_path = env::var("PATH").unwrap_or_default();
-        let new_path = format!("{}:{}", temp_dir.path().display(), original_path);
-        unsafe {
-            env::set_var("PATH", new_path);
-        }
-        PathGuard { original_path }
-    }
+    use crate::testing::env_mock;
 
     #[test]
-    #[serial]
+    #[serial(env_path)]
     fn list_label_names_parses_output() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let _path_guard = create_mock_gh(
+        let _path_guard = env_mock::create_mock_bin(
+            "gh",
             &temp_dir,
             r#"#!/bin/sh
             echo "bug\nfeature\nhelp wanted"
@@ -116,11 +88,12 @@ mod tests {
     }
 
     #[test]
-    #[serial]
+    #[serial(env_path)]
     fn create_label_executes_correct_command() {
         let temp_dir = tempfile::tempdir().unwrap();
         let args_file = temp_dir.path().join("args.txt");
-        let _path_guard = create_mock_gh(
+        let _path_guard = env_mock::create_mock_bin(
+            "gh",
             &temp_dir,
             &format!(
                 r#"#!/bin/sh
@@ -147,11 +120,12 @@ mod tests {
     }
 
     #[test]
-    #[serial]
+    #[serial(env_path)]
     fn delete_label_executes_correct_command() {
         let temp_dir = tempfile::tempdir().unwrap();
         let args_file = temp_dir.path().join("args.txt");
-        let _path_guard = create_mock_gh(
+        let _path_guard = env_mock::create_mock_bin(
+            "gh",
             &temp_dir,
             &format!(
                 r#"#!/bin/sh
