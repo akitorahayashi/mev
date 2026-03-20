@@ -1,3 +1,3 @@
-//! Test helpers and utilities.
+//! Test support.
 
 pub mod env_mock;
