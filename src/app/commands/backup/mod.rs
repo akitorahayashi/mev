@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use serde::Deserialize;
 
 use crate::app::DependencyContainer;
-use crate::domain::backup_target::{validate_backup_target, BackupTarget};
+use crate::domain::backup_target::{BackupTarget, validate_backup_target};
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::fs::FsPort;
