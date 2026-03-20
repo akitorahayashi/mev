@@ -2,6 +2,7 @@
 
 use crate::harness::TestContext;
 use predicates::prelude::*;
+use std::os::unix::fs::PermissionsExt;
 
 #[test]
 fn create_help_shows_overwrite_flag() {
@@ -40,7 +41,6 @@ echo "localhost                  : ok=10   changed=5    unreachable=0    failed=
 
     std::fs::write(&ansible_path, ansible_mock).unwrap();
 
-    use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(&ansible_path, std::fs::Permissions::from_mode(0o755)).unwrap();
 
     ctx.cli()
