@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNEREOF' > tests/cli/backup.rs
 //! CLI contract tests for the `backup` command.
 
 use crate::harness::TestContext;
@@ -138,3 +140,4 @@ fn backup_system_failure_no_definitions() {
         .failure()
         .stderr(predicate::str::contains("no setting definitions found"));
 }
+INNEREOF
