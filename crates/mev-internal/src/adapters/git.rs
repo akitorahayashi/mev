@@ -33,10 +33,7 @@ impl GitAdapter {
         &self,
         submodule_path: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let base_dir = self
-            .current_dir
-            .clone()
-            .unwrap_or_else(|| std::env::current_dir().unwrap());
+        let base_dir = self.current_dir.clone().unwrap_or_else(|| std::env::current_dir().unwrap());
         let modules_path = base_dir.join(".git").join("modules").join(submodule_path);
         if modules_path.exists() {
             fs::remove_dir_all(&modules_path)?;
@@ -165,10 +162,8 @@ mod tests {
         fs::create_dir_all(&modules_dir).unwrap();
         assert!(modules_dir.exists());
 
-        let adapter = GitAdapter {
-            current_dir: Some(temp_dir.path().to_path_buf()),
-            ..Default::default()
-        };
+        let adapter =
+            GitAdapter { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
 
         adapter.remove_submodule_module_dir("test-submodule").unwrap();
         assert!(!modules_dir.exists());
@@ -194,7 +189,8 @@ mod tests {
             ..Default::default()
         };
 
-        adapter.delete_submodule_worktree("test-submodule")
+        adapter
+            .delete_submodule_worktree("test-submodule")
             .expect("delete_submodule_worktree should succeed");
 
         let executed_args = fs::read_to_string(args_file).unwrap();

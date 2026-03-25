@@ -96,9 +96,7 @@ mod tests {
         );
 
         let repo = RepositoryRef::from_repo_arg("owner/repo").unwrap();
-        let adapter = GhAdapter {
-            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
-        };
+        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
         let labels = adapter.list_label_names(&repo).expect("list_label_names should succeed");
         assert_eq!(labels, vec!["bug", "feature", "help wanted"]);
     }
@@ -125,9 +123,7 @@ mod tests {
             color: "d73a4a".to_string(),
         };
 
-        let adapter = GhAdapter {
-            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
-        };
+        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
         adapter.create_label(&repo, &label).expect("create_label should succeed");
 
         let executed_args = fs::read_to_string(args_file).unwrap();
@@ -153,9 +149,7 @@ mod tests {
         );
 
         let repo = RepositoryRef::from_repo_arg("owner/repo").unwrap();
-        let adapter = GhAdapter {
-            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
-        };
+        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
         adapter.delete_label(&repo, "bug").expect("delete_label should succeed");
 
         let executed_args = fs::read_to_string(args_file).unwrap();
