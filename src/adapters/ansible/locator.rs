@@ -11,6 +11,7 @@ use tempfile::TempDir;
 use crate::adapters::ansible::runtime_assets;
 use crate::domain::error::AppError;
 
+#[derive(Debug)]
 pub struct ResolvedAnsibleDir {
     path: PathBuf,
     temp_dir: Option<TempDir>,
@@ -72,10 +73,11 @@ fn locate_ansible_dir_with(
 
     let candidates =
         searched.iter().map(|p| format!("  {}", p.display())).collect::<Vec<_>>().join("\n");
-    let embedded_detail = embedded_error
-        .as_ref()
-        .map(|message| format!("\nEmbedded materialization error:\n  {message}"))
-        .unwrap_or_default();
+
+    let embedded_detail = match embedded_error.as_ref() {
+        Some(message) => format!("\nEmbedded materialization error:\n  {message}"),
+        None => String::new(),
+    };
 
     Err(AppError::AnsibleExecution {
         message: format!(
@@ -126,5 +128,20 @@ mod tests {
         .unwrap();
 
         assert_eq!(resolved.path(), embedded_dir.as_path());
+    }
+
+    #[test]
+    fn fails_when_embedded_materialization_fails() {
+        let err = locate_ansible_dir_with(None, || {
+            Err(AppError::Config("embedded failure".to_string()))
+        })
+        .unwrap_err();
+
+        match err {
+            AppError::AnsibleExecution { message, .. } => {
+                assert!(message.contains("Embedded materialization error:\n  configuration error: embedded failure"));
+            }
+            _ => panic!("Expected AnsibleExecution error, got {:?}", err),
+        }
     }
 }

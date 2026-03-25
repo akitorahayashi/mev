@@ -1,11 +1,12 @@
 //! Repository target resolution.
 
+use crate::domain::error::DomainError;
 use crate::domain::repository_ref::RepositoryRef;
 
 pub fn resolve_repo_ref(
     explicit_repo: Option<&str>,
     origin_url: Option<&str>,
-) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
+) -> Result<RepositoryRef, DomainError> {
     if let Some(explicit_repo) = explicit_repo {
         return RepositoryRef::from_repo_arg(explicit_repo);
     }
@@ -14,8 +15,10 @@ pub fn resolve_repo_ref(
         return RepositoryRef::from_remote_url(origin_url);
     }
 
-    Err("could not determine repository: pass --repo or run inside a git repository with origin"
-        .into())
+    Err(DomainError::MissingOriginUrl(
+        "could not determine repository: pass --repo or run inside a git repository with origin"
+            .to_string(),
+    ))
 }
 
 #[cfg(test)]
@@ -38,7 +41,10 @@ mod tests {
 
     #[test]
     fn fails_when_both_none() {
-        assert!(resolve_repo_ref(None, None).is_err());
+        assert!(matches!(
+            resolve_repo_ref(None, None),
+            Err(DomainError::MissingOriginUrl(_))
+        ));
     }
 
     #[test]

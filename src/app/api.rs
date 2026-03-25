@@ -112,9 +112,9 @@ pub fn backup_list() {
 
 fn ansible_context() -> Result<DependencyContainer, AppError> {
     let ansible_dir = locator::locate_ansible_dir()?;
-    DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))
+    DependencyContainer::new(ansible_dir)
 }
 
 fn identity_context() -> Result<DependencyContainer, AppError> {
-    DependencyContainer::for_identity().map_err(|e| AppError::Config(e.to_string()))
+    DependencyContainer::for_identity()
 }

@@ -68,6 +68,10 @@ tests/
 - Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
 - Every file belongs to a clear, specific category
 
+### Error Handling
+- All domain and boundary errors use explicit typed errors (e.g., `DomainError` in internal crates or `AppError` at the application layer) rather than generic `Box<dyn std::error::Error>`.
+- Silent fallbacks, such as using `.unwrap_or_default()` when encountering fetching or materialization failures (e.g., config parsing or IO operations), are strictly prohibited. Such failures must be surfaced explicitly.
+
 ## Design Rules
 
 ### Path Resolution
