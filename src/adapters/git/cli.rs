@@ -22,7 +22,8 @@ impl GitCli {
     }
 
     fn run_config(&self, key: &str, value: &str) -> Result<(), AppError> {
-        let output = self.command()
+        let output = self
+            .command()
             .args(["config", "--global", key, value])
             .output()
             .map_err(|e| AppError::Config(format!("failed to run git config: {e}")))?;

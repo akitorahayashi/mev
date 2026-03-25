@@ -16,15 +16,9 @@ fn git_cli_get_identity_returns_strings() {
 
     // Create a mock .gitconfig in the temp home directory
     let gitconfig_path = temp_dir.path().join(".gitconfig");
-    fs::write(
-        gitconfig_path,
-        "[user]\n\tname = Test User\n\temail = test@example.com\n",
-    )
-    .unwrap();
+    fs::write(gitconfig_path, "[user]\n\tname = Test User\n\temail = test@example.com\n").unwrap();
 
-    let git = mev::adapters::git::cli::GitCli {
-        home_dir: Some(temp_dir.path().to_path_buf()),
-    };
+    let git = mev::adapters::git::cli::GitCli { home_dir: Some(temp_dir.path().to_path_buf()) };
 
     let result = git.get_identity();
     assert!(result.is_ok());
@@ -37,9 +31,7 @@ fn git_cli_get_identity_returns_strings() {
 fn git_cli_set_identity_updates_config() {
     let temp_dir = tempfile::tempdir().unwrap();
 
-    let git = mev::adapters::git::cli::GitCli {
-        home_dir: Some(temp_dir.path().to_path_buf()),
-    };
+    let git = mev::adapters::git::cli::GitCli { home_dir: Some(temp_dir.path().to_path_buf()) };
 
     let result = git.set_identity("New User", "new@example.com");
     assert!(result.is_ok());

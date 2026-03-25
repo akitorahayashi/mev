@@ -22,7 +22,8 @@ impl JjCli {
     }
 
     fn run_config(&self, key: &str, value: &str) -> Result<(), AppError> {
-        let output = self.command()
+        let output = self
+            .command()
             .args(["config", "set", "--user", key, value])
             .output()
             .map_err(|e| AppError::Config(format!("failed to run jj config: {e}")))?;

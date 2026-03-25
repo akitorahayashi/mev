@@ -23,15 +23,10 @@ fn jj_cli_get_identity_returns_configured_values() {
 
     // Create a mock jj config file in the temp home directory (.jjconfig.toml)
     let config_toml_path = temp_dir.path().join(".jjconfig.toml");
-    fs::write(
-        config_toml_path,
-        "[user]\nname = \"Jj Test User\"\nemail = \"jj@example.com\"\n",
-    )
-    .unwrap();
+    fs::write(config_toml_path, "[user]\nname = \"Jj Test User\"\nemail = \"jj@example.com\"\n")
+        .unwrap();
 
-    let jj = mev::adapters::jj::cli::JjCli {
-        home_dir: Some(temp_dir.path().to_path_buf()),
-    };
+    let jj = mev::adapters::jj::cli::JjCli { home_dir: Some(temp_dir.path().to_path_buf()) };
 
     let result = jj.get_identity();
     assert!(result.is_ok());
@@ -50,9 +45,7 @@ fn jj_cli_set_identity_updates_config() {
 
     let temp_dir = tempfile::tempdir().unwrap();
 
-    let jj = mev::adapters::jj::cli::JjCli {
-        home_dir: Some(temp_dir.path().to_path_buf()),
-    };
+    let jj = mev::adapters::jj::cli::JjCli { home_dir: Some(temp_dir.path().to_path_buf()) };
 
     let result = jj.set_identity("New Jj User", "newjj@example.com");
     assert!(result.is_ok());
