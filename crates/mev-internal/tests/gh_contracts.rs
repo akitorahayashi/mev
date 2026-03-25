@@ -1,7 +1,7 @@
+use mev_internal::app::commands::gh::{labels_deploy, labels_reset};
 use serial_test::serial;
 use std::env;
 use std::fs;
-use mev_internal::app::commands::gh::{labels_deploy, labels_reset};
 use tempfile::TempDir;
 
 pub struct PathGuard {
@@ -47,9 +47,7 @@ fn test_gh_labels_deploy() {
 
     let _path_guard = create_mock_bin("gh", &temp_dir, &mock_script);
 
-    let args = labels_deploy::LabelsDeployArgs {
-        repo: Some("owner/repo".to_string()),
-    };
+    let args = labels_deploy::LabelsDeployArgs { repo: Some("owner/repo".to_string()) };
 
     labels_deploy::run(args).expect("deploy should succeed");
 
@@ -73,9 +71,7 @@ fn test_gh_labels_reset() {
 
     let _path_guard = create_mock_bin("gh", &temp_dir, &mock_script);
 
-    let args = labels_reset::LabelsResetArgs {
-        repo: Some("owner/repo".to_string()),
-    };
+    let args = labels_reset::LabelsResetArgs { repo: Some("owner/repo".to_string()) };
 
     labels_reset::run(args).expect("reset should succeed");
 
