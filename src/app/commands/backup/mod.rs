@@ -267,7 +267,7 @@ fn execute_vscode(ctx: &DependencyContainer, output_file: &Path) -> Result<(), A
 }
 
 // ---------------------------------------------------------------------------
-// Shared helpers
+// Directory resolution
 // ---------------------------------------------------------------------------
 
 /// Resolve definitions directory with fallback from local to package defaults.
