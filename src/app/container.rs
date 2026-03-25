@@ -17,7 +17,6 @@ use crate::adapters::jj::cli::JjCli;
 use crate::adapters::macos_defaults::cli::MacosDefaultsCli;
 use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::adapters::vscode::cli::VscodeCli;
-use crate::domain::error::AppError;
 
 /// Application context wiring ports to concrete adapters.
 #[allow(dead_code)]
@@ -38,13 +37,12 @@ pub struct DependencyContainer {
 #[allow(dead_code)]
 impl DependencyContainer {
     /// Construct the context from an ansible asset directory.
-    pub fn new(ansible_dir: ResolvedAnsibleDir) -> Result<Self, AppError> {
+    pub fn new(ansible_dir: ResolvedAnsibleDir) -> Result<Self, Box<dyn std::error::Error>> {
         let local_config_root = paths::local_config_root()?;
         let (ansible_dir, ansible_temp_dir) = ansible_dir.into_parts();
 
         Ok(Self {
-            ansible: AnsibleAdapter::new(&ansible_dir, &local_config_root)
-                .map_err(|e| AppError::Config(e.to_string()))?,
+            ansible: AnsibleAdapter::new(&ansible_dir, &local_config_root)?,
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
             version_source: InstallScriptVersionSource,
             git: GitCli,
@@ -59,7 +57,7 @@ impl DependencyContainer {
     }
 
     /// Construct a lightweight identity-only context (no ansible asset resolution needed).
-    pub fn for_identity() -> Result<Self, AppError> {
+    pub fn for_identity() -> Result<Self, Box<dyn std::error::Error>> {
         let local_config_root = paths::local_config_root()?;
         Ok(Self {
             ansible: AnsibleAdapter::empty(&local_config_root),

@@ -1,7 +1,5 @@
 //! GitHub repository reference normalization.
 
-use crate::domain::error::DomainError;
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RepositoryRef {
     host: Option<String>,
@@ -10,16 +8,16 @@ pub struct RepositoryRef {
 }
 
 impl RepositoryRef {
-    pub fn from_repo_arg(input: &str) -> Result<Self, DomainError> {
+    pub fn from_repo_arg(input: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let parts = input.split('/').collect::<Vec<_>>();
         match parts.as_slice() {
             [owner, name] => Self::new(None, owner, name),
             [host, owner, name] => Self::new(Some(*host), owner, name),
-            _ => Err(DomainError::InvalidRepositoryRef(input.to_string())),
+            _ => Err(format!("invalid repository reference '{input}'").into()),
         }
     }
 
-    pub fn from_remote_url(input: &str) -> Result<Self, DomainError> {
+    pub fn from_remote_url(input: &str) -> Result<Self, Box<dyn std::error::Error>> {
         if let Some(rest) = input.strip_prefix("git@") {
             return parse_scp_like_remote(rest);
         }
@@ -36,7 +34,7 @@ impl RepositoryRef {
             return parse_https_remote(rest);
         }
 
-        Err(DomainError::UnsupportedRemoteUrl(input.to_string()))
+        Err(format!("unsupported remote url '{input}'").into())
     }
 
     pub fn as_gh_repo_arg(&self) -> String {
@@ -46,11 +44,13 @@ impl RepositoryRef {
         }
     }
 
-    fn new(host: Option<&str>, owner: &str, name: &str) -> Result<Self, DomainError> {
+    fn new(
+        host: Option<&str>,
+        owner: &str,
+        name: &str,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         if owner.is_empty() || name.is_empty() {
-            return Err(DomainError::InvalidRepositoryRef(
-                "repository owner and name must not be empty".to_string(),
-            ));
+            return Err("repository owner and name must not be empty".into());
         }
 
         Ok(Self {
@@ -61,36 +61,33 @@ impl RepositoryRef {
     }
 }
 
-fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input
-        .split_once(':')
-        .ok_or_else(|| DomainError::UnsupportedRemoteUrl(input.to_string()))?;
+fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
+    let (host, path) =
+        input.split_once(':').ok_or_else(|| format!("invalid ssh remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input
-        .split_once('/')
-        .ok_or_else(|| DomainError::UnsupportedRemoteUrl(input.to_string()))?;
+fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
+    let (host, path) =
+        input.split_once('/').ok_or_else(|| format!("invalid ssh remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_https_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input
-        .split_once('/')
-        .ok_or_else(|| DomainError::UnsupportedRemoteUrl(input.to_string()))?;
+fn parse_https_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
+    let (host, path) =
+        input.split_once('/').ok_or_else(|| format!("invalid https remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn split_owner_name(path: &str) -> Result<(&str, &str), DomainError> {
+fn split_owner_name(path: &str) -> Result<(&str, &str), Box<dyn std::error::Error>> {
     let trimmed = path.trim_start_matches('/');
     let parts = trimmed.split('/').collect::<Vec<_>>();
     match parts.as_slice() {
         [owner, name] => Ok((owner, name)),
-        _ => Err(DomainError::InvalidRepositoryRef(path.to_string())),
+        _ => Err(format!("invalid repository path '{path}'").into()),
     }
 }
 
@@ -155,17 +152,16 @@ mod tests {
     #[test]
     fn from_remote_url_fails_on_unsupported_url() {
         let result = RepositoryRef::from_remote_url("ftp://github.com/owner/repo.git");
-        assert!(matches!(result, Err(DomainError::UnsupportedRemoteUrl(_))));
+        assert!(result.is_err());
     }
 
     #[test]
     fn from_repo_arg_fails_on_invalid_format() {
         let cases = ["just-one-part", "host/owner/repo/extra"];
         for input in cases {
-            let res = RepositoryRef::from_repo_arg(input);
             assert!(
-                matches!(res, Err(DomainError::InvalidRepositoryRef(_))),
-                "from_repo_arg should fail with InvalidRepositoryRef for '{input}'"
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
             );
         }
     }
@@ -174,10 +170,9 @@ mod tests {
     fn from_repo_arg_fails_on_empty_owner_or_name() {
         let cases = ["/repo", "owner/", "/", "host//repo", "host/owner/"];
         for input in cases {
-            let res = RepositoryRef::from_repo_arg(input);
             assert!(
-                matches!(res, Err(DomainError::InvalidRepositoryRef(_))),
-                "from_repo_arg should fail with InvalidRepositoryRef for '{input}'"
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
             );
         }
     }
@@ -186,9 +181,8 @@ mod tests {
     fn from_remote_url_fails_on_invalid_ssh_remote() {
         let cases = ["git@github.com", "ssh://git@github.com"];
         for input in cases {
-            let res = RepositoryRef::from_remote_url(input);
             assert!(
-                matches!(res, Err(DomainError::UnsupportedRemoteUrl(_))) || matches!(res, Err(DomainError::InvalidRepositoryRef(_))),
+                RepositoryRef::from_remote_url(input).is_err(),
                 "from_remote_url should fail for '{input}'"
             );
         }
@@ -198,9 +192,8 @@ mod tests {
     fn from_remote_url_fails_on_invalid_https_remote() {
         let cases = ["https://github.com", "https://github.com/owner"];
         for input in cases {
-            let res = RepositoryRef::from_remote_url(input);
             assert!(
-                matches!(res, Err(DomainError::UnsupportedRemoteUrl(_))) || matches!(res, Err(DomainError::InvalidRepositoryRef(_))),
+                RepositoryRef::from_remote_url(input).is_err(),
                 "from_remote_url should fail for '{input}'"
             );
         }
