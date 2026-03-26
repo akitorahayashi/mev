@@ -43,7 +43,7 @@ impl BackupTarget {
 
     /// Subdirectory within the role config directory.
     pub fn subpath(self) -> &'static str {
-        "common"
+        "global"
     }
 }
 
