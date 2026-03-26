@@ -64,23 +64,11 @@ fn switch_success_with_git_and_jj() {
 
     let cmd_log = ctx.work_dir().join("cmd_log.txt");
 
-    let git_bin = ctx.work_dir().join("git");
-    std::fs::write(&git_bin, "#!/bin/sh\necho \"git $@\" >> \"$CMD_LOG\"\nexit 0\n").unwrap();
-    let mut perms = std::fs::metadata(&git_bin).unwrap().permissions();
-    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
-    std::fs::set_permissions(&git_bin, perms).unwrap();
-
-    let jj_bin = ctx.work_dir().join("jj");
-    std::fs::write(&jj_bin, "#!/bin/sh\necho \"jj $@\" >> \"$CMD_LOG\"\nexit 0\n").unwrap();
-    let mut perms = std::fs::metadata(&jj_bin).unwrap().permissions();
-    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
-    std::fs::set_permissions(&jj_bin, perms).unwrap();
-
-    let path = std::env::var("PATH").unwrap_or_default();
-    let new_path = format!("{}:{}", ctx.work_dir().display(), path);
+    ctx.create_mock_command("git", "#!/bin/sh\necho \"git $@\" >> \"$CMD_LOG\"\nexit 0\n");
+    ctx.create_mock_command("jj", "#!/bin/sh\necho \"jj $@\" >> \"$CMD_LOG\"\nexit 0\n");
 
     ctx.cli()
-        .env("PATH", new_path)
+        .env("PATH", ctx.path_with_mock_commands())
         .env("CMD_LOG", &cmd_log)
         .args(["switch", "work"])
         .assert()

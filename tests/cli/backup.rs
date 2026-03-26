@@ -86,16 +86,13 @@ fn backup_system_success() {
     )
     .unwrap();
 
-    let defaults_bin = ctx.work_dir().join("defaults");
-    std::fs::write(&defaults_bin, "#!/bin/sh\nexit 0\n").unwrap();
-    let mut perms = std::fs::metadata(&defaults_bin).unwrap().permissions();
-    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
-    std::fs::set_permissions(&defaults_bin, perms).unwrap();
+    ctx.create_mock_command("defaults", "#!/bin/sh\nexit 0\n");
 
-    let path = std::env::var("PATH").unwrap_or_default();
-    let new_path = format!("{}:{}", ctx.work_dir().display(), path);
-
-    ctx.cli().env("PATH", new_path).args(["backup", "system"]).assert().success();
+    ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
+        .args(["backup", "system"])
+        .assert()
+        .success();
 
     let output_file = ctx.work_dir().join(".config/mev/roles/system/common/system.yml");
     assert!(output_file.exists());
@@ -107,16 +104,13 @@ fn backup_system_success() {
 fn backup_vscode_success() {
     let ctx = TestContext::new();
 
-    let code_bin = ctx.work_dir().join("code");
-    std::fs::write(&code_bin, "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n").unwrap();
-    let mut perms = std::fs::metadata(&code_bin).unwrap().permissions();
-    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
-    std::fs::set_permissions(&code_bin, perms).unwrap();
+    ctx.create_mock_command("code", "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n");
 
-    let path = std::env::var("PATH").unwrap_or_default();
-    let new_path = format!("{}:{}", ctx.work_dir().display(), path);
-
-    ctx.cli().env("PATH", new_path).args(["backup", "vscode"]).assert().success();
+    ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
+        .args(["backup", "vscode"])
+        .assert()
+        .success();
 
     let output_file = ctx.work_dir().join(".config/mev/roles/editor/common/vscode-extensions.json");
     assert!(output_file.exists());
