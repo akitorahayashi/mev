@@ -93,38 +93,38 @@ mod tests {
 
     use super::*;
 
-    fn create_ansible_dir(root: &std::path::Path, relative: &str) -> PathBuf {
+    fn create_ansible_dir(root: &std::path::Path, relative: &str) -> Result<PathBuf, std::io::Error> {
         let dir = root.join(relative);
-        std::fs::create_dir_all(dir.join("roles")).unwrap();
-        std::fs::write(dir.join("playbook.yml"), "---\nroles: []\n").unwrap();
-        dir
+        std::fs::create_dir_all(dir.join("roles"))?;
+        std::fs::write(dir.join("playbook.yml"), "---\nroles: []\n")?;
+        Ok(dir)
     }
 
     #[test]
-    fn prefers_manifest_assets_over_embedded_cache() {
-        let temp = TempDir::new().unwrap();
-        let manifest_dir = create_ansible_dir(temp.path(), "workspace/src/assets/ansible");
-        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible");
+    fn prefers_manifest_assets_over_embedded_cache() -> Result<(), Box<dyn std::error::Error>> {
+        let temp = TempDir::new()?;
+        let manifest_dir = create_ansible_dir(temp.path(), "workspace/src/assets/ansible")?;
+        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible")?;
 
         let resolved = locate_ansible_dir_with(Some(manifest_dir.clone()), || {
             Ok(ResolvedAnsibleDir::from_path(embedded_dir.clone()))
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(resolved.path(), manifest_dir.as_path());
+        Ok(())
     }
 
     #[test]
-    fn uses_embedded_assets_when_manifest_assets_are_missing() {
-        let temp = TempDir::new().unwrap();
+    fn uses_embedded_assets_when_manifest_assets_are_missing() -> Result<(), Box<dyn std::error::Error>> {
+        let temp = TempDir::new()?;
         let manifest_dir = temp.path().join("workspace/src/assets/ansible");
-        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible");
+        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible")?;
 
         let resolved = locate_ansible_dir_with(Some(manifest_dir), || {
             Ok(ResolvedAnsibleDir::from_path(embedded_dir.clone()))
-        })
-        .unwrap();
+        })?;
 
         assert_eq!(resolved.path(), embedded_dir.as_path());
+        Ok(())
     }
 }
