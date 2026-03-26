@@ -75,8 +75,12 @@ impl GitAdapter {
     {
         let mut command = Command::new("git");
         if let Some(env_path) = &self.mock_env_path {
-            let original_path = std::env::var("PATH").unwrap_or_default();
-            command.env("PATH", format!("{}:{}", env_path, original_path));
+            let original_path = std::env::var_os("PATH").unwrap_or_default();
+            let mut paths = std::env::split_paths(&original_path).collect::<Vec<_>>();
+            paths.insert(0, std::path::PathBuf::from(env_path));
+            if let Ok(new_path) = std::env::join_paths(paths) {
+                command.env("PATH", new_path);
+            }
         }
         if let Some(current_dir) = &self.current_dir {
             command.current_dir(current_dir);

@@ -68,8 +68,12 @@ impl GhAdapter {
     fn build_gh_command(&self, args: &[&str], repo: &RepositoryRef) -> Command {
         let mut command = Command::new("gh");
         if let Some(env_path) = &self.mock_env_path {
-            let original_path = std::env::var("PATH").unwrap_or_default();
-            command.env("PATH", format!("{}:{}", env_path, original_path));
+            let original_path = std::env::var_os("PATH").unwrap_or_default();
+            let mut paths = std::env::split_paths(&original_path).collect::<Vec<_>>();
+            paths.insert(0, std::path::PathBuf::from(env_path));
+            if let Ok(new_path) = std::env::join_paths(paths) {
+                command.env("PATH", new_path);
+            }
         }
         command.args(args);
         command.args(["--repo", &repo.as_gh_repo_arg()]);
