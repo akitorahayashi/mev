@@ -305,16 +305,17 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_custom_valid() {
-        let dir = tempdir().unwrap();
+    fn test_resolve_ansible_playbook_bin_custom_valid() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
         let bin_path = dir.path().join("ansible-playbook");
-        fs::write(&bin_path, "").unwrap();
+        fs::write(&bin_path, "")?;
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
         let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
-        assert_eq!(result.unwrap(), bin_path);
+        assert_eq!(result?, bin_path);
+        Ok(())
     }
 
     #[test]
@@ -330,35 +331,37 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_pipx_home_valid() {
-        let dir = tempdir().unwrap();
+    fn test_resolve_ansible_playbook_bin_pipx_home_valid() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
         let pipx_home = dir.path().join("pipx");
         let bin_dir = pipx_home.join("venvs").join("ansible").join("bin");
-        fs::create_dir_all(&bin_dir).unwrap();
+        fs::create_dir_all(&bin_dir)?;
         let bin_path = bin_dir.join("ansible-playbook");
-        fs::write(&bin_path, "").unwrap();
+        fs::write(&bin_path, "")?;
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert(PIPX_HOME_ENV.to_string(), pipx_home.into());
         let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
-        assert_eq!(result.unwrap(), bin_path);
+        assert_eq!(result?, bin_path);
+        Ok(())
     }
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_home_valid() {
-        let dir = tempdir().unwrap();
+    fn test_resolve_ansible_playbook_bin_home_valid() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
         let home = dir.path().join("home");
         let bin_dir = home.join(".local").join("pipx").join("venvs").join("ansible").join("bin");
-        fs::create_dir_all(&bin_dir).unwrap();
+        fs::create_dir_all(&bin_dir)?;
         let bin_path = bin_dir.join("ansible-playbook");
-        fs::write(&bin_path, "").unwrap();
+        fs::write(&bin_path, "")?;
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert("HOME".to_string(), home.into());
         let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
-        assert_eq!(result.unwrap(), bin_path);
+        assert_eq!(result?, bin_path);
+        Ok(())
     }
 
     #[test]
@@ -370,23 +373,23 @@ mod tests {
     }
 
     #[test]
-    fn test_build_command_success() {
-        let dir = tempdir().unwrap();
+    fn test_build_command_success() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
         let ansible_dir = dir.path().join("ansible");
-        fs::create_dir_all(&ansible_dir).unwrap();
+        fs::create_dir_all(&ansible_dir)?;
 
         let playbook_path = ansible_dir.join("playbook.yml");
-        fs::write(&playbook_path, "").unwrap();
+        fs::write(&playbook_path, "")?;
 
         let config_path = ansible_dir.join("ansible.cfg");
-        fs::write(&config_path, "").unwrap();
+        fs::write(&config_path, "")?;
 
         let roles_dir = ansible_dir.join("roles");
-        fs::create_dir_all(&roles_dir).unwrap();
+        fs::create_dir_all(&roles_dir)?;
 
         // Mock playbook binary resolution via ANSIBLE_PLAYBOOK_BIN_ENV
         let bin_path = dir.path().join("ansible-playbook");
-        fs::write(&bin_path, "").unwrap();
+        fs::write(&bin_path, "")?;
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
 
@@ -406,7 +409,7 @@ mod tests {
         );
 
         assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
-        let cmd = cmd_result.unwrap();
+        let cmd = cmd_result?;
 
         let program = cmd.get_program().to_string_lossy();
         assert_eq!(program, bin_path.to_string_lossy());
@@ -421,6 +424,7 @@ mod tests {
         assert!(args.contains(&"tag1,tag2".to_string()));
         assert!(args.contains(&"-vvv".to_string()));
         assert!(args.contains(&"local_config_root=/local/config".to_string()));
+        Ok(())
     }
 
     #[test]
