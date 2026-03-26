@@ -9,12 +9,11 @@ use crate::domain::ports::git::GitPort;
 #[derive(Default)]
 pub struct GitCli {
     pub home_dir: Option<PathBuf>,
-    pub bin_path: Option<PathBuf>,
 }
 
 impl GitCli {
     fn command(&self) -> Command {
-        let mut cmd = Command::new(self.bin_path.as_deref().unwrap_or(std::path::Path::new("git")));
+        let mut cmd = Command::new("git");
         if let Some(home) = &self.home_dir {
             cmd.env("HOME", home);
             cmd.env("USERPROFILE", home); // for windows compat if needed, safe to set
@@ -59,6 +58,6 @@ impl GitPort for GitCli {
     }
 
     fn is_available(&self) -> bool {
-        which::which(self.bin_path.as_deref().unwrap_or(std::path::Path::new("git"))).is_ok()
+        which::which("git").is_ok()
     }
 }

@@ -9,12 +9,11 @@ use crate::domain::ports::jj::JjPort;
 #[derive(Default)]
 pub struct JjCli {
     pub home_dir: Option<PathBuf>,
-    pub bin_path: Option<PathBuf>,
 }
 
 impl JjCli {
     fn command(&self) -> Command {
-        let mut cmd = Command::new(self.bin_path.as_deref().unwrap_or(std::path::Path::new("jj")));
+        let mut cmd = Command::new("jj");
         if let Some(home) = &self.home_dir {
             cmd.env("HOME", home);
             cmd.env("USERPROFILE", home);
@@ -59,6 +58,6 @@ impl JjPort for JjCli {
     }
 
     fn is_available(&self) -> bool {
-        which::which(self.bin_path.as_deref().unwrap_or(std::path::Path::new("jj"))).is_ok()
+        which::which("jj").is_ok()
     }
 }
