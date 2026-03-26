@@ -47,19 +47,25 @@ mod tests {
 
     #[test]
     fn verify_cli_shape_gh_labels_deploy() {
-        let err = Cli::command().try_get_matches_from(["mev-internal", "gh", "labels", "deploy", "--help"]).unwrap_err();
+        let err = Cli::command()
+            .try_get_matches_from(["mev-internal", "gh", "labels", "deploy", "--help"])
+            .unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
     }
 
     #[test]
     fn verify_cli_shape_gh_labels_reset() {
-        let err = Cli::command().try_get_matches_from(["mev-internal", "gh", "labels", "reset", "--help"]).unwrap_err();
+        let err = Cli::command()
+            .try_get_matches_from(["mev-internal", "gh", "labels", "reset", "--help"])
+            .unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
     }
 
     #[test]
     fn verify_cli_shape_git_delete_submodule() {
-        let err = Cli::command().try_get_matches_from(["mev-internal", "git", "delete-submodule", "--help"]).unwrap_err();
+        let err = Cli::command()
+            .try_get_matches_from(["mev-internal", "git", "delete-submodule", "--help"])
+            .unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
     }
 }
