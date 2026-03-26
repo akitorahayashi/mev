@@ -49,13 +49,12 @@ impl PathGuard {
     pub fn new(bin_dir: &Path) -> Self {
         let original_path = env::var_os("PATH");
         let mut paths =
-            env::split_paths(&original_path.clone().unwrap_or_default()).collect::<Vec<_>>();
+            env::split_paths(original_path.as_deref().unwrap_or_default()).collect::<Vec<_>>();
         paths.insert(0, bin_dir.to_path_buf());
-        if let Ok(new_path) = env::join_paths(paths) {
-            // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
-            unsafe {
-                env::set_var("PATH", new_path);
-            }
+        let new_path = env::join_paths(paths).expect("Failed to construct new PATH");
+        // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        unsafe {
+            env::set_var("PATH", new_path);
         }
         Self { original_path }
     }

@@ -40,7 +40,7 @@ fn test_gh_labels_reset() {
     let mock_script = create_gh_mock_script(&gh_log);
 
     let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script);
-    let _path_guard = mev_internal::testing::env_mock::PathGuard::new(&mock_bin_dir);
+    let _path_guard = PathGuard::new(&mock_bin_dir);
 
     let args = labels_reset::LabelsResetArgs { repo: Some("owner/repo".to_string()) };
 
