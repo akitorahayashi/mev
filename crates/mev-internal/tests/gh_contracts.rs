@@ -11,7 +11,7 @@ fn create_gh_mock_script(log_path: &std::path::Path) -> String {
 }
 
 #[test]
-#[serial(env_path)]
+#[serial]
 fn test_gh_labels_deploy() {
     let temp_dir = tempfile::tempdir().unwrap();
     let gh_log = temp_dir.path().join("gh_log.txt");
@@ -32,7 +32,7 @@ fn test_gh_labels_deploy() {
 }
 
 #[test]
-#[serial(env_path)]
+#[serial]
 fn test_gh_labels_reset() {
     let temp_dir = tempfile::tempdir().unwrap();
     let gh_log = temp_dir.path().join("gh_log.txt");

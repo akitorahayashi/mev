@@ -8,6 +8,8 @@ use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 /// Guard that restores the current working directory when dropped.
+///
+/// Note: Tests using this should be marked with `#[serial]` to avoid environment variable races.
 pub struct DirGuard {
     original_dir: PathBuf,
 }
@@ -15,14 +17,25 @@ pub struct DirGuard {
 impl DirGuard {
     pub fn new(target_dir: &Path) -> Self {
         let original_dir = env::current_dir().unwrap();
-        env::set_current_dir(target_dir).unwrap();
+        // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        // We do not strictly need an unsafe block for set_current_dir in Rust editions before 2024,
+        // but we add it here explicitly via `#![allow(unused_unsafe)]` to emphasize its thread-unsafe nature
+        // and match the pattern of `set_var`.
+        #[allow(unused_unsafe)]
+        unsafe {
+            env::set_current_dir(target_dir).unwrap();
+        }
         Self { original_dir }
     }
 }
 
 impl Drop for DirGuard {
     fn drop(&mut self) {
-        let _ = env::set_current_dir(&self.original_dir);
+        // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        #[allow(unused_unsafe)]
+        unsafe {
+            let _ = env::set_current_dir(&self.original_dir);
+        }
     }
 }
 
