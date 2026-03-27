@@ -17,11 +17,11 @@ const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
 const PIPX_HOME_ENV: &str = "PIPX_HOME";
 const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = "venvs/ansible/bin/ansible-playbook";
 
-fn resolve_ansible_playbook_bin_with_env(
-    env_var: impl Fn(&str) -> Option<std::ffi::OsString>,
+fn resolve_ansible_playbook_bin_with_env<T: AsRef<std::ffi::OsStr>>(
+    env_var: impl Fn(&str) -> Option<T>,
 ) -> Result<PathBuf, AppError> {
     if let Some(custom_bin) = env_var(ANSIBLE_PLAYBOOK_BIN_ENV) {
-        let custom_path = PathBuf::from(custom_bin);
+        let custom_path = PathBuf::from(custom_bin.as_ref());
         if custom_path.is_file() {
             return Ok(custom_path);
         }
@@ -35,8 +35,8 @@ fn resolve_ansible_playbook_bin_with_env(
     }
 
     let pipx_home = env_var(PIPX_HOME_ENV)
-        .map(PathBuf::from)
-        .or_else(|| env_var("HOME").map(|home| PathBuf::from(home).join(".local").join("pipx")))
+        .map(|s| PathBuf::from(s.as_ref()))
+        .or_else(|| env_var("HOME").map(|home| PathBuf::from(home.as_ref()).join(".local").join("pipx")))
         .ok_or_else(|| AppError::AnsibleExecution {
             message: format!(
                 "neither {PIPX_HOME_ENV} nor HOME is set; cannot resolve pipx ansible-playbook path."
@@ -109,12 +109,12 @@ impl AnsibleAdapter {
         self.build_command_with_env(profile, tags, verbose, |k| env::var_os(k))
     }
 
-    pub(crate) fn build_command_with_env(
+    pub(crate) fn build_command_with_env<T: AsRef<std::ffi::OsStr>>(
         &self,
         profile: &str,
         tags: &[String],
         verbose: bool,
-        env_var: impl Fn(&str) -> Option<std::ffi::OsString>,
+        env_var: impl Fn(&str) -> Option<T>,
     ) -> Result<Command, AppError> {
         if self.ansible_dir.as_os_str().is_empty() {
             return Err(AppError::AnsibleExecution {
@@ -271,7 +271,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
                         Some(serde_yaml::Value::Sequence(seq)) => {
                             seq.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect()
                         }
-                        Some(serde_yaml::Value::String(s)) => vec![s.clone()],
+                        Some(serde_yaml::Value::String(s)) => vec![s.to_string()],
                         _ => Vec::new(),
                     };
 
@@ -285,7 +285,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
                                 )
                                 .into());
                             }
-                            tag_to_role.insert(tag.clone(), name.clone());
+                            tag_to_role.insert(tag.to_string(), name.to_string());
                         }
                         tags_by_role.entry(name).or_default().extend(tags);
                     }
@@ -312,7 +312,7 @@ mod tests {
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
-        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k));
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -324,7 +324,7 @@ mod tests {
             ANSIBLE_PLAYBOOK_BIN_ENV.to_string(),
             OsString::from("/invalid/path/to/ansible-playbook"),
         );
-        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k));
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
@@ -340,7 +340,7 @@ mod tests {
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert(PIPX_HOME_ENV.to_string(), pipx_home.into());
-        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k));
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -356,7 +356,7 @@ mod tests {
 
         let mut env_map: HashMap<String, OsString> = HashMap::new();
         env_map.insert("HOME".to_string(), home.into());
-        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k));
 
         assert_eq!(result.unwrap(), bin_path);
     }
@@ -364,7 +364,7 @@ mod tests {
     #[test]
     fn test_resolve_ansible_playbook_bin_not_found() {
         let env_map: HashMap<String, OsString> = HashMap::new();
-        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k));
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
@@ -402,7 +402,7 @@ mod tests {
             "my_profile",
             &["tag1".to_string(), "tag2".to_string()],
             true,
-            |k| env_map.get(k).cloned(),
+            |k| env_map.get(k),
         );
 
         assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
