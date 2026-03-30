@@ -93,7 +93,10 @@ mod tests {
 
     use super::*;
 
-    fn create_ansible_dir(root: &std::path::Path, relative: &str) -> Result<PathBuf, std::io::Error> {
+    fn create_ansible_dir(
+        root: &std::path::Path,
+        relative: &str,
+    ) -> Result<PathBuf, std::io::Error> {
         let dir = root.join(relative);
         std::fs::create_dir_all(dir.join("roles"))?;
         std::fs::write(dir.join("playbook.yml"), "---\nroles: []\n")?;
@@ -115,7 +118,8 @@ mod tests {
     }
 
     #[test]
-    fn uses_embedded_assets_when_manifest_assets_are_missing() -> Result<(), Box<dyn std::error::Error>> {
+    fn uses_embedded_assets_when_manifest_assets_are_missing()
+    -> Result<(), Box<dyn std::error::Error>> {
         let temp = TempDir::new()?;
         let manifest_dir = temp.path().join("workspace/src/assets/ansible");
         let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible")?;

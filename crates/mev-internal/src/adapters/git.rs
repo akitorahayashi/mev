@@ -142,7 +142,8 @@ mod tests {
     }
 
     #[test]
-    fn remove_submodule_config_section_handles_no_such_section() -> Result<(), Box<dyn std::error::Error>> {
+    fn remove_submodule_config_section_handles_no_such_section()
+    -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
@@ -179,7 +180,8 @@ mod tests {
     }
 
     #[test]
-    fn delete_submodule_worktree_executes_correct_commands() -> Result<(), Box<dyn std::error::Error>> {
+    fn delete_submodule_worktree_executes_correct_commands()
+    -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(
@@ -202,7 +204,10 @@ mod tests {
 
         let executed_args = fs::read_to_string(args_file)?;
         let mut lines = executed_args.lines();
-        assert_eq!(lines.next().ok_or("missing first line")?.trim(), "submodule deinit -f test-submodule");
+        assert_eq!(
+            lines.next().ok_or("missing first line")?.trim(),
+            "submodule deinit -f test-submodule"
+        );
         assert_eq!(lines.next().ok_or("missing second line")?.trim(), "rm -f -r test-submodule");
         Ok(())
     }

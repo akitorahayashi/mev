@@ -331,7 +331,8 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_pipx_home_valid() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_resolve_ansible_playbook_bin_pipx_home_valid() -> Result<(), Box<dyn std::error::Error>>
+    {
         let dir = tempdir()?;
         let pipx_home = dir.path().join("pipx");
         let bin_dir = pipx_home.join("venvs").join("ansible").join("bin");
