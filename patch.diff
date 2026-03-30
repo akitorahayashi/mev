@@ -1,0 +1,12 @@
+--- .github/workflows/jules-pr-metadata.yml
++++ .github/workflows/jules-pr-metadata.yml
+@@ -41,9 +41,7 @@
+
+       - name: Install jlo
+         uses: asterismhq/setup-jlo@v1
+         with:
+-
+           version: '24.0.1'
+-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+       - name: Discover PR number

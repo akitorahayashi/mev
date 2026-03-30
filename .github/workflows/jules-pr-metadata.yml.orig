@@ -42,7 +42,6 @@ jobs:
       - name: Install jlo
         uses: asterismhq/setup-jlo@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           version: '24.0.1'
 
       - name: Discover PR number

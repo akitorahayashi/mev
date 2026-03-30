@@ -1,4 +1,4 @@
-# Provision input contract for jlo provision
+# Setup input contract for jlo setup
 # Configure these inputs in Jules GUI as needed.
 
 [GH_TOKEN]
