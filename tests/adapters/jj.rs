@@ -104,10 +104,7 @@ exit 0
 fn jj_cli_is_available_returns_bool() {
     let temp_dir = tempfile::tempdir().unwrap();
     let fake_jj = write_fake_jj(temp_dir.path());
-    let jj = mev::adapters::jj::cli::JjCli {
-        home_dir: None,
-        bin_path: Some(fake_jj),
-    };
+    let jj = mev::adapters::jj::cli::JjCli { home_dir: None, bin_path: Some(fake_jj) };
     assert!(jj.is_available());
 }
 

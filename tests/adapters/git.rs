@@ -106,10 +106,7 @@ exit 0
 fn git_cli_reports_available() {
     let temp_dir = tempfile::tempdir().unwrap();
     let fake_git = write_fake_git(temp_dir.path());
-    let git = mev::adapters::git::cli::GitCli {
-        home_dir: None,
-        bin_path: Some(fake_git),
-    };
+    let git = mev::adapters::git::cli::GitCli { home_dir: None, bin_path: Some(fake_git) };
     assert!(git.is_available());
 }
 
