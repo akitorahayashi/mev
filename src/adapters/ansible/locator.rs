@@ -37,9 +37,9 @@ impl ResolvedAnsibleDir {
 
 /// Resolve the ansible directory containing `playbook.yml` and `roles/`.
 pub fn locate_ansible_dir() -> Result<ResolvedAnsibleDir, AppError> {
-    let manifest_dir_buf = std::env::var("CARGO_MANIFEST_DIR").ok().map(|manifest_dir| {
-        PathBuf::from(manifest_dir).join("src").join("assets").join("ansible")
-    });
+    let manifest_dir_buf = std::env::var("CARGO_MANIFEST_DIR")
+        .ok()
+        .map(|manifest_dir| PathBuf::from(manifest_dir).join("src").join("assets").join("ansible"));
 
     locate_ansible_dir_with(manifest_dir_buf.as_deref(), || {
         runtime_assets::materialize_embedded_ansible_dir().map(ResolvedAnsibleDir::from_temp_dir)
