@@ -52,7 +52,6 @@ fn no_args_shows_help() {
     ctx.cli().assert().failure().stderr(predicate::str::contains("Usage"));
 }
 
-
 #[test]
 fn make_help_shows_overwrite_flag() {
     let ctx = TestContext::new();
