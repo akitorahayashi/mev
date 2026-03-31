@@ -13,8 +13,7 @@ implementation_ready: false
 
 ## Evidence
 
-- source_event: "<original event filename>"
-  path: "<repo-relative path>"
+- path: "<repo-relative path>"
   loc: "<line number, range, or symbol>"
   note: "<why this supports the requirement>"
 
