@@ -15,7 +15,7 @@ impl GitAdapter {
     pub fn delete_submodule_worktree(
         &self,
         submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), crate::domain::error::DomainError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -32,7 +32,7 @@ impl GitAdapter {
     pub fn remove_submodule_module_dir(
         &self,
         submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), crate::domain::error::DomainError> {
         let base_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
@@ -47,7 +47,7 @@ impl GitAdapter {
     pub fn remove_submodule_config_section(
         &self,
         submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), crate::domain::error::DomainError> {
         let output = process::run_output(
             self.git_command([
                 "config",
@@ -64,7 +64,7 @@ impl GitAdapter {
         }
     }
 
-    pub fn current_origin_url(&self) -> Result<String, Box<dyn std::error::Error>> {
+    pub fn current_origin_url(&self) -> Result<String, crate::domain::error::DomainError> {
         let output = process::run_output(
             self.git_command(["remote", "get-url", "origin"]),
             "git remote get-url origin",
@@ -101,7 +101,7 @@ mod tests {
     use crate::testing::env_mock;
 
     #[test]
-    fn current_origin_url_parses_output() -> Result<(), Box<dyn std::error::Error>> {
+    fn current_origin_url_parses_output() -> Result<(), crate::domain::error::DomainError> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
@@ -122,7 +122,7 @@ mod tests {
     }
 
     #[test]
-    fn remove_submodule_config_section_handles_success() -> Result<(), Box<dyn std::error::Error>> {
+    fn remove_submodule_config_section_handles_success() -> Result<(), crate::domain::error::DomainError> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn remove_submodule_config_section_handles_no_such_section()
-    -> Result<(), Box<dyn std::error::Error>> {
+    -> Result<(), crate::domain::error::DomainError> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
@@ -164,7 +164,7 @@ mod tests {
     }
 
     #[test]
-    fn remove_submodule_module_dir_removes_directory() -> Result<(), Box<dyn std::error::Error>> {
+    fn remove_submodule_module_dir_removes_directory() -> Result<(), crate::domain::error::DomainError> {
         let temp_dir = tempfile::tempdir()?;
 
         let modules_dir = temp_dir.path().join(".git").join("modules").join("test-submodule");
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn delete_submodule_worktree_executes_correct_commands()
-    -> Result<(), Box<dyn std::error::Error>> {
+    -> Result<(), crate::domain::error::DomainError> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(

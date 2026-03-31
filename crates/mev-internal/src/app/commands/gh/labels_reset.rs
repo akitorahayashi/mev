@@ -12,7 +12,7 @@ pub struct LabelsResetArgs {
     pub repo: Option<String>,
 }
 
-pub fn run(args: LabelsResetArgs) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run(args: LabelsResetArgs) -> Result<(), crate::domain::error::DomainError> {
     let git_adapter = git::GitAdapter::default();
     let origin_url = args.repo.is_none().then(|| git_adapter.current_origin_url()).transpose()?;
     let repo = repo_target::resolve_repo_ref(args.repo.as_deref(), origin_url.as_deref())?;

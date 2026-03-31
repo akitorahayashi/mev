@@ -11,7 +11,7 @@ pub struct DeleteSubmoduleArgs {
     pub submodule_path: String,
 }
 
-pub fn run(args: DeleteSubmoduleArgs) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run(args: DeleteSubmoduleArgs) -> Result<(), crate::domain::error::DomainError> {
     submodule_path::validate_submodule_path(&args.submodule_path)?;
 
     println!("Deleting submodule {}...", args.submodule_path);
