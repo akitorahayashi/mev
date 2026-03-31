@@ -4,7 +4,6 @@ name: Jules Auto-merge
 on:
   push:
     branches:
-      - 'jules-narrator-*'
       - 'jules-observer-*'
       - 'jules-merger-*'
       - 'jules-dispatcher-*'
@@ -48,8 +47,8 @@ jobs:
       - name: Install jlo
         uses: asterismhq/setup-jlo@v1
         with:
-          token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '24.0.1'
+          token: ${{ secrets.JLO_INSTALL_PAT }}
+          version: '25.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Discover open PR for pushed branch
@@ -68,15 +67,11 @@ jobs:
       - name: Validate branch contract
         run: |
           set -euo pipefail
-          echo "::group::Doctor check"
+          echo "::group::Validate check"
 
           mode=""
           layer=""
           case "${GITHUB_REF_NAME}" in
-            jules-narrator-*)
-              mode="layer"
-              layer="narrator"
-              ;;
             jules-observer-*)
               mode="layer"
               layer="observers"
@@ -111,9 +106,9 @@ jobs:
           esac
 
           if [ "${mode}" = "structure" ]; then
-            jlo workflow doctor structure
+            jlo workflow validate
           else
-            jlo workflow doctor layer "${layer}"
+            jlo workflow validate --after-layer "${layer}"
           fi
           echo "::endgroup::"
 
@@ -124,8 +119,8 @@ jobs:
         with:
           command: >-
             jlo workflow gh enable-pr-automerge ${{ steps.discover.outputs.pr_number }}
-          max_attempts: '15'
+          max_attempts: '7'
           timeout_seconds: '300'
-          retry_delay_seconds: '10'
+          retry_delay_schedule_seconds: '1,2,4,8,16,32'
           retry_on: any
           termination_grace_seconds: '5'
