@@ -16,14 +16,14 @@ Installable as a standalone Rust binary via `install.sh`.
 | Testing | src/testing/ | In-process test doubles and builders |
 | Internal dep | crates/mev-internal/ | Internal command domain implementations reused by mev |
 
-## app structure
+## App structure
 
 - `cli/` contains clap input contracts only.
 - `commands/` contains orchestration units per command domain.
 - `context.rs` wires ports to adapters without command logic duplication.
 - `api.rs` exposes stable library entrypoints used by `main.rs`.
 
-## domain structure
+## Domain structure
 
 - `error.rs` contains domain-level typed errors.
 - `ports/` defines explicit interfaces consumed by application and domain.
