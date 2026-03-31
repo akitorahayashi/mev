@@ -158,7 +158,11 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
     }
 }
 
-fn format_string(raw_value: &str, key: &str, default: &serde_yaml::Value) -> Result<String, AppError> {
+fn format_string(
+    raw_value: &str,
+    key: &str,
+    default: &serde_yaml::Value,
+) -> Result<String, AppError> {
     let mut value = if raw_value.is_empty() {
         match default {
             serde_yaml::Value::String(s) => Cow::Borrowed(s.as_str()),
