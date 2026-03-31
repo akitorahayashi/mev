@@ -53,57 +53,27 @@ fn no_args_shows_help() {
 }
 
 #[test]
-fn make_help_shows_overwrite_flag() {
+fn make_help_shows_flags() {
     let ctx = TestContext::new();
 
     ctx.cli()
         .args(["make", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("--overwrite"));
-}
-
-#[test]
-fn make_help_shows_verbose_flag() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["make", "--help"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("--verbose"));
-}
-
-#[test]
-fn make_help_shows_profile_flag() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["make", "--help"])
-        .assert()
-        .success()
+        .stdout(predicate::str::contains("--overwrite"))
+        .stdout(predicate::str::contains("--verbose"))
         .stdout(predicate::str::contains("--profile"));
 }
 
 #[test]
-fn create_help_shows_overwrite_flag() {
+fn create_help_shows_flags() {
     let ctx = TestContext::new();
 
     ctx.cli()
         .args(["create", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("--overwrite"));
-}
-
-#[test]
-fn create_help_shows_verbose_flag() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["create", "--help"])
-        .assert()
-        .success()
+        .stdout(predicate::str::contains("--overwrite"))
         .stdout(predicate::str::contains("--verbose"));
 }
 
