@@ -81,3 +81,146 @@ impl IdentityStore for IdentityFileStore {
         self.identity_path.as_path()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn create_dummy_state() -> IdentityState {
+        IdentityState {
+            personal: Identity {
+                name: "Personal Name".to_string(),
+                email: "personal@example.com".to_string(),
+            },
+            work: Identity {
+                name: "Work Name".to_string(),
+                email: "work@example.com".to_string(),
+            },
+        }
+    }
+
+    #[test]
+    fn exists_returns_false_when_neither_exist() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("identity.json");
+        let store = IdentityFileStore::new(path);
+
+        assert!(!store.exists());
+        Ok(())
+    }
+
+    #[test]
+    fn exists_returns_true_when_identity_exists() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("identity.json");
+        std::fs::write(&path, "{}")?;
+
+        let store = IdentityFileStore::new(path);
+        assert!(store.exists());
+        Ok(())
+    }
+
+    #[test]
+    fn exists_returns_true_when_legacy_exists() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let legacy_path = dir.path().join("config.json");
+        std::fs::write(&legacy_path, "{}")?;
+
+        let path = dir.path().join("identity.json");
+        let store = IdentityFileStore::new(path);
+        assert!(store.exists());
+        Ok(())
+    }
+
+    #[test]
+    fn load_fails_when_neither_exists() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("identity.json");
+        let store = IdentityFileStore::new(path);
+
+        assert!(store.load().is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn load_succeeds_from_new_path() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("identity.json");
+        let state = create_dummy_state();
+        let content = serde_json::to_string(&state)?;
+        std::fs::write(&path, content)?;
+
+        let store = IdentityFileStore::new(path);
+        let loaded = store.load()?;
+        assert_eq!(loaded.personal.email, "personal@example.com");
+        Ok(())
+    }
+
+    #[test]
+    fn load_succeeds_from_legacy_and_migrates() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let legacy_path = dir.path().join("config.json");
+        let state = create_dummy_state();
+        let content = serde_json::to_string(&state)?;
+        std::fs::write(&legacy_path, content)?;
+
+        let path = dir.path().join("identity.json");
+        let store = IdentityFileStore::new(path.clone());
+
+        assert!(!path.exists());
+
+        let loaded = store.load()?;
+        assert_eq!(loaded.personal.email, "personal@example.com");
+
+        // Ensure it migrated
+        assert!(path.exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn save_writes_atomically() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("nested").join("identity.json");
+        let store = IdentityFileStore::new(path.clone());
+
+        let state = create_dummy_state();
+        store.save(&state)?;
+
+        assert!(path.exists());
+
+        let content = std::fs::read_to_string(&path)?;
+        let loaded: IdentityState = serde_json::from_str(&content)?;
+        assert_eq!(loaded.work.name, "Work Name");
+        Ok(())
+    }
+
+    #[test]
+    fn save_fails_without_parent() -> Result<(), Box<dyn std::error::Error>> {
+        let path = PathBuf::from("");
+        let store = IdentityFileStore::new(path);
+
+        let state = create_dummy_state();
+        assert!(store.save(&state).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_identity_returns_correct_variants() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let path = dir.path().join("identity.json");
+        let store = IdentityFileStore::new(path);
+
+        let state = create_dummy_state();
+        store.save(&state)?;
+
+        let personal = store.get_identity(SwitchIdentity::Personal)?.ok_or("missing personal")?;
+        assert_eq!(personal.name, "Personal Name");
+
+        let work = store.get_identity(SwitchIdentity::Work)?.ok_or("missing work")?;
+        assert_eq!(work.name, "Work Name");
+
+        Ok(())
+    }
+}
