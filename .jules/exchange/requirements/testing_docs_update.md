@@ -1,17 +1,15 @@
 ---
 label: "docs"
-created_at: "2026-03-31"
-author_role: "consistency"
-confidence: "high"
+implementation_ready: false
 ---
+
+## Goal
+
+Add `tests/cli/` and `tests/adapters/` to the table of layers and the command list in `docs/testing.md`.
 
 ## Problem
 
 The testing documentation in `docs/testing.md` fails to mention the `tests/cli/` and `tests/adapters/` test layers, and consequently doesn't include the command to run those tests.
-
-## Goal
-
-Add `tests/cli/` and `tests/adapters/` to the table of layers and the command list in `docs/testing.md` to keep it consistent with `docs/architecture.md` and the actual repository structure.
 
 ## Context
 
@@ -32,3 +30,11 @@ The `tests/` directory contains several integration testing targets including `c
 ## Change Scope
 
 - `docs/testing.md`
+
+## Constraints
+
+- Keep it consistent with `docs/architecture.md` and actual repository structure.
+
+## Acceptance Criteria
+
+- `tests/cli/` and `tests/adapters/` are documented in `docs/testing.md`.

@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-05-23"
-author_role: "data_arch"
-confidence: "high"
+implementation_ready: false
 ---
+
+## Goal
+
+Consolidate the string-to-variant mapping logic to use a single source of truth by dynamically checking variant canonical names and explicitly defined aliases.
 
 ## Problem
 
 Domain models map user strings to enum variants using static alias arrays (`PROFILE_ALIASES`, `SWITCH_IDENTITY_ALIASES`, `BACKUP_TARGET_ALIASES`) that hardcode and duplicate the canonical string names and aliases already associated with the enums.
-
-## Goal
-
-Consolidate the string-to-variant mapping logic to use a single source of truth by dynamically checking variant canonical names and explicitly defined aliases, removing the redundant static arrays.
 
 ## Context
 
@@ -34,3 +32,11 @@ The Single Source of Truth principle dictates that each fact has one canonical r
 - `src/domain/profile.rs`
 - `src/domain/identity.rs`
 - `src/domain/backup_target.rs`
+
+## Constraints
+
+- Parsing logic correctly interprets canonical names and explicitly defined aliases.
+
+## Acceptance Criteria
+
+- Hardcoded static alias arrays are removed.

@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-05-23"
-author_role: "data_arch"
-confidence: "medium"
+implementation_ready: false
 ---
-
-## Problem
-
-Tag values, used to drive Ansible execution mapping, are hardcoded in the domain model rather than explicitly validated against a single source of truth or the external Ansible asset catalog itself.
 
 ## Goal
 
 Generate or validate available tags dynamically from authoritative Ansible catalog definitions instead of keeping a duplicated, manual array up to date.
+
+## Problem
+
+Tag values, used to drive Ansible execution mapping, are hardcoded in the domain model rather than explicitly validated against a single source of truth or the external Ansible asset catalog itself.
 
 ## Context
 
@@ -30,3 +28,11 @@ The Single Source of Truth principle states that each concept must have one cano
 
 - `src/domain/tag.rs`
 - `src/domain/execution_plan.rs`
+
+## Constraints
+
+- Ensure tags map to existing roles.
+
+## Acceptance Criteria
+
+- Tag definitions are dynamically derived or validated against Ansible roles, and static hardcoded arrays are removed.

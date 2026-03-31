@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2024-05-30"
-author_role: "cov"
-confidence: "high"
+implementation_ready: false
 ---
+
+## Goal
+
+Ensure that all methods of the `IdentityFileStore` adapter (`exists`, `load`, `save`, and `get_identity`) are fully tested.
 
 ## Problem
 
 The JSON identity store implementation in `src/adapters/identity_store/local_json.rs` has very low test coverage and is missing critical path assertions, especially around persistence and error handling.
-
-## Goal
-
-Ensure that all methods of the `IdentityFileStore` adapter (`exists`, `load`, `save`, and `get_identity`) are fully tested, particularly its atomic saving logic, legacy config migration behavior, and error paths.
 
 ## Context
 
@@ -26,3 +24,11 @@ The `IdentityFileStore` manages reading and writing the user's identities (`pers
 ## Change Scope
 
 - `src/adapters/identity_store/local_json.rs`
+
+## Constraints
+
+- Use temporary files to avoid polluting local system state.
+
+## Acceptance Criteria
+
+- Tests verify legacy migration, atomic saves, and specific identity retrieval in `IdentityFileStore`.
