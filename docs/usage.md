@@ -40,8 +40,8 @@ mev identity set          # Configure VCS identities interactively
 mev identity show         # Show current configuration
 mev id show               # Shorthand
 mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
-mev config deploy rust    # Deploy only rust role config
 mev cf dp                 # Shorthand
+mev config deploy rust    # Deploy only rust role config
 ```
 
 VCS identity switches via:
