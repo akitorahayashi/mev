@@ -35,3 +35,91 @@ pub fn run(args: LabelsDeployArgs) -> Result<(), Box<dyn std::error::Error>> {
     println!("Deployed bundled labels to {}.", repo.as_gh_repo_arg());
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+    use serial_test::serial;
+    use crate::testing::env_mock;
+    use super::*;
+
+    #[test]
+    #[serial]
+    #[allow(unused_unsafe)]
+    fn deploys_labels_successfully_without_replacements() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let git_args = temp_dir.path().join("git_args.txt");
+        let gh_args = temp_dir.path().join("gh_args.txt");
+
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(r#"#!/bin/sh
+                echo "$@" >> "{}"
+                echo "git@github.com:owner/repo.git"
+            "#, git_args.display()),
+        );
+        env_mock::create_mock_bin(
+            "gh",
+            &temp_dir,
+            &format!(r#"#!/bin/sh
+                echo "$@" >> "{}"
+                if [ "$1" = "label" ] && [ "$2" = "list" ]; then
+                    echo ""
+                else
+                    exit 0
+                fi
+            "#, gh_args.display()),
+        );
+
+        let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
+
+        run(LabelsDeployArgs { repo: None })?;
+
+        let gh_cmds = fs::read_to_string(gh_args)?;
+        assert!(gh_cmds.contains("label create bugs"));
+        assert!(!gh_cmds.contains("label delete"));
+
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    #[allow(unused_unsafe)]
+    fn deploys_labels_with_replacements() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let git_args = temp_dir.path().join("git_args.txt");
+        let gh_args = temp_dir.path().join("gh_args.txt");
+
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(r#"#!/bin/sh
+                echo "$@" >> "{}"
+                echo "git@github.com:owner/repo.git"
+            "#, git_args.display()),
+        );
+        env_mock::create_mock_bin(
+            "gh",
+            &temp_dir,
+            &format!(r#"#!/bin/sh
+                echo "$@" >> "{}"
+                if [ "$1" = "label" ] && [ "$2" = "list" ]; then
+                    echo "bugs"
+                else
+                    exit 0
+                fi
+            "#, gh_args.display()),
+        );
+
+        let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
+
+        run(LabelsDeployArgs { repo: Some("owner/repo".to_string()) })?;
+
+        let gh_cmds = fs::read_to_string(gh_args)?;
+        assert!(gh_cmds.contains("label delete bugs"));
+        assert!(gh_cmds.contains("label create bugs"));
+
+        Ok(())
+    }
+}
