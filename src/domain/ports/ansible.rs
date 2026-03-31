@@ -15,9 +15,6 @@ pub trait AnsiblePort {
     /// Get all available tags.
     fn all_tags(&self) -> Vec<String>;
 
-    /// Get all available tags in the order they are defined in the catalog.
-    fn ordered_tags(&self) -> Vec<String>;
-
     /// Get mapping of role names to their associated tags.
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>>;
 

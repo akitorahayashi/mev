@@ -6,6 +6,7 @@ use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::profile::Profile;
+use crate::domain::tag;
 
 /// Execute the `make` command: deploy configs and run specified tags.
 pub fn execute(
@@ -15,11 +16,7 @@ pub fn execute(
     overwrite: bool,
     verbose: bool,
 ) -> Result<(), AppError> {
-    let tags_to_run = if let Some(role_tags) = ctx.ansible.tags_by_role().get(tag_input) {
-        role_tags.clone()
-    } else {
-        vec![tag_input.to_string()]
-    };
+    let tags_to_run = tag::resolve_tags(tag_input);
 
     // Validate tags exist in catalog
     for t in &tags_to_run {

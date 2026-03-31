@@ -255,7 +255,7 @@ fn list_shows_expected_sections() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Available Tags"))
-        .stdout(predicate::str::contains("Roles (can be used as tag groups):"))
+        .stdout(predicate::str::contains("Tag Groups (expanded automatically):"))
         .stdout(predicate::str::contains("Profiles:"))
         .stdout(predicate::str::contains("brew-formulae"));
 }
