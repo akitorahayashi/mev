@@ -49,10 +49,7 @@ pub fn all_profiles() -> &'static [Profile] {
 
 /// Resolve a profile identifier or alias to a `Profile`.
 pub fn resolve_profile(input: &str) -> Option<Profile> {
-    all_profiles()
-        .iter()
-        .find(|p| input == p.as_str() || p.aliases().contains(&input))
-        .copied()
+    all_profiles().iter().find(|p| input == p.as_str() || p.aliases().contains(&input)).copied()
 }
 
 /// Validate that the input maps to a hardware-specific profile (required for `create`).

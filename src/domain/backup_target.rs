@@ -66,10 +66,7 @@ const ALL_TARGETS: &[BackupTarget] = &[BackupTarget::System, BackupTarget::Vscod
 
 /// Resolve a backup target identifier or alias to a `BackupTarget`.
 pub fn resolve_backup_target(input: &str) -> Option<BackupTarget> {
-    BackupTarget::all()
-        .iter()
-        .find(|t| input == t.name() || t.aliases().contains(&input))
-        .copied()
+    BackupTarget::all().iter().find(|t| input == t.name() || t.aliases().contains(&input)).copied()
 }
 
 /// Validate that the input maps to a `BackupTarget`.
