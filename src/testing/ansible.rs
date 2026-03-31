@@ -11,6 +11,7 @@ pub struct FakeAnsiblePort {
     pub roles_config_dir: HashMap<String, PathBuf>,
     pub all_tags: Vec<String>,
     pub tags_by_role: HashMap<String, Vec<String>>,
+    pub ordered_tags: Vec<String>,
     pub events: RefCell<Vec<String>>,
 }
 
@@ -22,6 +23,7 @@ impl FakeAnsiblePort {
             roles_config_dir: HashMap::new(),
             all_tags: Vec::new(),
             tags_by_role: HashMap::new(),
+            ordered_tags: Vec::new(),
             events: RefCell::new(Vec::new()),
         }
     }
@@ -39,6 +41,10 @@ impl AnsiblePort for FakeAnsiblePort {
 
     fn all_tags(&self) -> Vec<String> {
         self.all_tags.clone()
+    }
+
+    fn ordered_tags(&self) -> Vec<String> {
+        self.ordered_tags.clone()
     }
 
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {

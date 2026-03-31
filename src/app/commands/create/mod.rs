@@ -6,7 +6,6 @@ use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::profile::Profile;
-use crate::domain::tag::FULL_SETUP_TAGS;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
 pub fn execute(
@@ -15,17 +14,8 @@ pub fn execute(
     overwrite: bool,
     verbose: bool,
 ) -> Result<(), AppError> {
-    // Validate all tags exist in catalog
-    let all_catalog_tags: std::collections::HashSet<String> =
-        ctx.ansible.all_tags().into_iter().collect();
-    let invalid: Vec<&&str> =
-        FULL_SETUP_TAGS.iter().filter(|t| !all_catalog_tags.contains(**t)).collect();
-    if !invalid.is_empty() {
-        let names: Vec<String> = invalid.iter().map(|t| (**t).to_string()).collect();
-        return Err(AppError::InvalidTag(format!("invalid tags in setup: {}", names.join(", "))));
-    }
-
-    let plan = ExecutionPlan::full_setup(profile, verbose);
+    let ordered_tags = ctx.ansible.ordered_tags();
+    let plan = ExecutionPlan::full_setup(profile, ordered_tags, verbose);
 
     println!();
     println!("mev: Creating {} environment", plan.profile);

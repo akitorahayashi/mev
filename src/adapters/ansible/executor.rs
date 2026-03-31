@@ -66,6 +66,7 @@ pub struct AnsibleAdapter {
     roles_dir: PathBuf,
     tags_by_role: HashMap<String, Vec<String>>,
     tag_to_role: HashMap<String, String>,
+    ordered_tags: Vec<String>,
 }
 
 impl AnsibleAdapter {
@@ -77,7 +78,7 @@ impl AnsibleAdapter {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let (tags_by_role, tag_to_role) = load_catalog(&playbook_path)?;
+        let (tags_by_role, tag_to_role, ordered_tags) = load_catalog(&playbook_path)?;
 
         Ok(Self {
             ansible_dir: ansible_dir.to_path_buf(),
@@ -85,6 +86,7 @@ impl AnsibleAdapter {
             roles_dir,
             tags_by_role,
             tag_to_role,
+            ordered_tags,
         })
     }
 
@@ -96,6 +98,7 @@ impl AnsibleAdapter {
             roles_dir: PathBuf::new(),
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            ordered_tags: Vec::new(),
         }
     }
 
@@ -224,6 +227,10 @@ impl AnsiblePort for AnsibleAdapter {
         tags
     }
 
+    fn ordered_tags(&self) -> Vec<String> {
+        self.ordered_tags.clone()
+    }
+
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
         &self.tags_by_role
     }
@@ -247,7 +254,7 @@ impl AnsiblePort for AnsibleAdapter {
 }
 
 /// Tag catalog: role→tags mapping and tag→role mapping.
-type Catalog = (HashMap<String, Vec<String>>, HashMap<String, String>);
+type Catalog = (HashMap<String, Vec<String>>, HashMap<String, String>, Vec<String>);
 
 /// Load tag-to-role mappings from a playbook.yml file.
 fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::Error>> {
@@ -259,6 +266,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
 
     let mut tags_by_role: HashMap<String, Vec<String>> = HashMap::new();
     let mut tag_to_role = HashMap::new();
+    let mut ordered_tags = Vec::new();
 
     for doc in &docs {
         if let Some(roles) = doc.get("roles").and_then(|r| r.as_sequence()) {
@@ -286,6 +294,9 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
                                 .into());
                             }
                             tag_to_role.insert(tag.to_string(), name.to_string());
+                            if !ordered_tags.contains(tag) {
+                                ordered_tags.push(tag.to_string());
+                            }
                         }
                         tags_by_role.entry(name).or_default().extend(tags);
                     }
@@ -294,7 +305,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
         }
     }
 
-    Ok((tags_by_role, tag_to_role))
+    Ok((tags_by_role, tag_to_role, ordered_tags))
 }
 #[cfg(test)]
 mod tests {
@@ -400,6 +411,7 @@ mod tests {
             roles_dir,
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            ordered_tags: Vec::new(),
         };
 
         let cmd_result = adapter.build_command_with_env(
@@ -435,6 +447,7 @@ mod tests {
             roles_dir: PathBuf::new(),
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            ordered_tags: Vec::new(),
         };
 
         let result = adapter.build_command("profile", &[], false);

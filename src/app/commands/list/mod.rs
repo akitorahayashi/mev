@@ -4,7 +4,6 @@ use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::profile;
-use crate::domain::tag;
 
 /// Execute the `list` command: print tags, groups, and profiles.
 pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
@@ -22,13 +21,9 @@ pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
     println!();
 
     // Tag groups
-    println!("Tag Groups (expanded automatically):");
-    let groups = tag::tag_groups();
-    let mut group_keys: Vec<_> = groups.keys().collect();
-    group_keys.sort();
-    for key in group_keys {
-        let tags = &groups[key];
-        println!("  {key} → {}", tags.join(", "));
+    println!("Roles (can be used as tag groups):");
+    for (role, tags) in &roles {
+        println!("  {role} → {}", tags.join(", "));
     }
     println!();
 
