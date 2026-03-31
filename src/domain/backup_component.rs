@@ -65,7 +65,10 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
 
 /// Resolve a backup component identifier or alias to a `BackupComponent`.
 pub fn resolve_backup_component(input: &str) -> Option<BackupComponent> {
-    BACKUP_COMPONENT_ALIASES.iter().find(|&&(alias, _)| alias == input).map(|&(_, component)| component)
+    BACKUP_COMPONENT_ALIASES
+        .iter()
+        .find(|&&(alias, _)| alias == input)
+        .map(|&(_, component)| component)
 }
 
 /// Validate that the input maps to a `BackupComponent`.

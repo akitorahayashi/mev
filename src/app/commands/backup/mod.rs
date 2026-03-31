@@ -26,7 +26,8 @@ pub fn execute(ctx: &DependencyContainer, component_input: &str) -> Result<(), A
 
     match component {
         BackupComponent::System => {
-            let definitions_dir = match resolve_definitions_dir(&local_config_dir, ctx, &component) {
+            let definitions_dir = match resolve_definitions_dir(&local_config_dir, ctx, &component)
+            {
                 DefinitionsDirResolution::Local(path) => path,
                 DefinitionsDirResolution::PackageDefault { resolved_dir, missing_local_dir } => {
                     println!(
