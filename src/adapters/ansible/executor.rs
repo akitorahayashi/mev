@@ -409,7 +409,6 @@ mod tests {
             |k| env_map.get(k).cloned(),
         );
 
-        assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
         let cmd = cmd_result?;
 
         let program = cmd.get_program().to_string_lossy();
