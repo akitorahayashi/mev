@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-03-31"
-author_role: "rustacean"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-Silent fallback `unwrap_or_else` is used during JSON serialization of system settings backup in `src/app/commands/backup/system.rs`. This violates the Design Rule that prohibits silent fallbacks.
 
 ## Goal
 
 Remove silent `unwrap_or_else` during JSON serialization in `src/app/commands/backup/system.rs` and properly surface serialization failures.
+
+## Problem
+
+Silent fallback `unwrap_or_else` is used during JSON serialization of system settings backup in `src/app/commands/backup/system.rs`.
 
 ## Context
 
@@ -29,3 +27,11 @@ The rule "Silent fallbacks are prohibited; any fallback is explicit, opt-in, and
 ## Change Scope
 
 - `src/app/commands/backup/system.rs`
+
+## Constraints
+
+- Serialization failures must be surfaced as an explicit error.
+
+## Acceptance Criteria
+
+- No silent fallbacks are used for JSON serialization in `system.rs`.

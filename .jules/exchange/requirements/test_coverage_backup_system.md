@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2024-05-30"
-author_role: "cov"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The system backup logic in `src/app/commands/backup/system.rs` lacks coverage on edge cases related to formatting logic and default handling, increasing regression risk.
 
 ## Goal
 
 Add tests to ensure all `format_bool`, `format_numeric`, `format_string` fallback/default logic paths are verified, as well as the missing coverage on directory fallback orchestration.
+
+## Problem
+
+The system backup logic in `src/app/commands/backup/system.rs` lacks coverage on edge cases related to formatting logic and default handling, increasing regression risk.
 
 ## Context
 
@@ -26,3 +24,11 @@ The system backup functionality evaluates macOS system settings against defined 
 ## Change Scope
 
 - `src/app/commands/backup/system.rs`
+
+## Constraints
+
+- Ensure all formatting logic paths are tested.
+
+## Acceptance Criteria
+
+- High test coverage is achieved for system backup formatting and execution logic.

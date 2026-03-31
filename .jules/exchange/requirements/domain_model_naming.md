@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2026-03-31"
-author_role: "taxonomy"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The domain layer uses different conceptual naming conventions for CLI command targets, leading to overloaded and inconsistent terms like `Profile`, `SwitchIdentity`, `BackupTarget`, and `tag`.
 
 ## Goal
 
-Establish a consistent naming convention and structural taxonomy for domain entities that act as targets or parameters for various system operations, ensuring a unified conceptual language.
+Establish a consistent naming convention and structural taxonomy for domain entities that act as targets or parameters for various system operations.
+
+## Problem
+
+The domain layer uses different conceptual naming conventions for CLI command targets, leading to overloaded and inconsistent terms like `SwitchIdentity` and `BackupTarget`.
 
 ## Context
 
@@ -30,11 +28,9 @@ Renaming `SwitchIdentity` to something like `GitIdentityScope` (or `IdentityScop
 - path: "src/domain/identity.rs"
   loc: "pub enum SwitchIdentity"
   note: "Named after the 'switch' CLI command, violating the domain language first rule."
-
 - path: "src/domain/backup_target.rs"
   loc: "pub enum BackupTarget"
   note: "Contains 'Target' which is a generic overloaded term, and is closely tied to the 'backup' command action."
-
 - path: "src/domain/profile.rs"
   loc: "pub enum Profile"
   note: "Standalone domain noun, correctly named."
@@ -49,3 +45,11 @@ Renaming `SwitchIdentity` to something like `GitIdentityScope` (or `IdentityScop
 - `src/app/cli/switch.rs`
 - `src/app/cli/backup.rs`
 - `src/app/api.rs`
+
+## Constraints
+
+- Update all dependents to maintain compilation.
+
+## Acceptance Criteria
+
+- `SwitchIdentity` and `BackupTarget` are renamed to appropriate domain nouns.

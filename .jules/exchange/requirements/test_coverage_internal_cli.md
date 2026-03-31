@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2024-05-30"
-author_role: "cov"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The CLI command implementation modules in `crates/mev-internal/src/app/commands/` (e.g., `git/delete_submodule.rs`, `gh/labels_deploy.rs`, `gh/labels_reset.rs`) have 0% test coverage.
 
 ## Goal
 
 Ensure that the core command logic is covered by tests, verifying that commands parse arguments and execute the correct adapter methods or correctly handle errors.
+
+## Problem
+
+The CLI command implementation modules in `crates/mev-internal/src/app/commands/` have 0% test coverage.
 
 ## Context
 
@@ -34,3 +32,11 @@ These command modules are the entry points for the CLI functionality in `mev-int
 - `crates/mev-internal/src/app/commands/gh/labels_deploy.rs`
 - `crates/mev-internal/src/app/commands/gh/labels_reset.rs`
 - `crates/mev-internal/src/app/commands/git/delete_submodule.rs`
+
+## Constraints
+
+- Mock underlying adapters if necessary.
+
+## Acceptance Criteria
+
+- Command logic correctly parsing arguments and orchestrating adapters is verified by tests.
