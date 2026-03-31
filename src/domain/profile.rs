@@ -47,24 +47,12 @@ pub fn all_profiles() -> &'static [Profile] {
     &[Profile::Global, Profile::Macbook, Profile::MacMini]
 }
 
-/// Input aliases mapping user-supplied strings to `Profile` variants.
-const PROFILE_ALIASES: &[(&str, Profile)] = &[
-    ("macbook", Profile::Macbook),
-    ("mbk", Profile::Macbook),
-    ("mac-mini", Profile::MacMini),
-    ("mmn", Profile::MacMini),
-    ("global", Profile::Global),
-    ("glb", Profile::Global),
-];
-
 /// Resolve a profile identifier or alias to a `Profile`.
 pub fn resolve_profile(input: &str) -> Option<Profile> {
-    for &(alias, profile) in PROFILE_ALIASES {
-        if input == alias {
-            return Some(profile);
-        }
-    }
-    None
+    all_profiles()
+        .iter()
+        .find(|p| input == p.as_str() || p.aliases().contains(&input))
+        .copied()
 }
 
 /// Validate that the input maps to a hardware-specific profile (required for `create`).
