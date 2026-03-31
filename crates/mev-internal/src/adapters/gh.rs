@@ -15,7 +15,7 @@ impl GhAdapter {
     pub fn list_label_names(
         &self,
         repo: &RepositoryRef,
-    ) -> Result<Vec<String>, crate::domain::error::DomainError> {
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let output = process::run_output(
             self.build_gh_command(
                 &["label", "list", "--limit", "9999", "--json", "name", "--jq", ".[].name"],
@@ -36,7 +36,7 @@ impl GhAdapter {
         &self,
         repo: &RepositoryRef,
         label_name: &str,
-    ) -> Result<(), crate::domain::error::DomainError> {
+    ) -> Result<(), Box<dyn std::error::Error>> {
         process::run_status(
             self.build_gh_command(&["label", "delete", label_name, "--yes"], repo),
             &format!("gh label delete {label_name} --repo {}", repo.as_gh_repo_arg()),
@@ -47,7 +47,7 @@ impl GhAdapter {
         &self,
         repo: &RepositoryRef,
         label: &LabelSpec,
-    ) -> Result<(), crate::domain::error::DomainError> {
+    ) -> Result<(), Box<dyn std::error::Error>> {
         process::run_status(
             self.build_gh_command(
                 &[
@@ -89,7 +89,7 @@ mod tests {
     use crate::testing::env_mock;
 
     #[test]
-    fn list_label_names_parses_output() -> Result<(), crate::domain::error::DomainError> {
+    fn list_label_names_parses_output() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "gh",
@@ -107,7 +107,7 @@ mod tests {
     }
 
     #[test]
-    fn create_label_executes_correct_command() -> Result<(), crate::domain::error::DomainError> {
+    fn create_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(
@@ -140,7 +140,7 @@ mod tests {
     }
 
     #[test]
-    fn delete_label_executes_correct_command() -> Result<(), crate::domain::error::DomainError> {
+    fn delete_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(

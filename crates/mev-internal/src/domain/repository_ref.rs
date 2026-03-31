@@ -8,7 +8,7 @@ pub struct RepositoryRef {
 }
 
 impl RepositoryRef {
-    pub fn from_repo_arg(input: &str) -> Result<Self, crate::domain::error::DomainError> {
+    pub fn from_repo_arg(input: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let parts = input.split('/').collect::<Vec<_>>();
         match parts.as_slice() {
             [owner, name] => Self::new(None, owner, name),
@@ -17,7 +17,7 @@ impl RepositoryRef {
         }
     }
 
-    pub fn from_remote_url(input: &str) -> Result<Self, crate::domain::error::DomainError> {
+    pub fn from_remote_url(input: &str) -> Result<Self, Box<dyn std::error::Error>> {
         if let Some(rest) = input.strip_prefix("git@") {
             return parse_scp_like_remote(rest);
         }
@@ -48,7 +48,7 @@ impl RepositoryRef {
         host: Option<&str>,
         owner: &str,
         name: &str,
-    ) -> Result<Self, crate::domain::error::DomainError> {
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         if owner.is_empty() || name.is_empty() {
             return Err("repository owner and name must not be empty".into());
         }
@@ -61,28 +61,28 @@ impl RepositoryRef {
     }
 }
 
-fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::DomainError> {
+fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
     let (host, path) =
-        input.split_once(':').ok_or_else(|| crate::domain::error::DomainError::Validation(format!("invalid ssh remote '{input}'")))?;
+        input.split_once(':').ok_or_else(|| format!("invalid ssh remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::DomainError> {
+fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
     let (host, path) =
-        input.split_once('/').ok_or_else(|| crate::domain::error::DomainError::Validation(format!("invalid ssh remote '{input}'")))?;
+        input.split_once('/').ok_or_else(|| format!("invalid ssh remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_https_remote(input: &str) -> Result<RepositoryRef, crate::domain::error::DomainError> {
+fn parse_https_remote(input: &str) -> Result<RepositoryRef, Box<dyn std::error::Error>> {
     let (host, path) =
-        input.split_once('/').ok_or_else(|| crate::domain::error::DomainError::Validation(format!("invalid https remote '{input}'")))?;
+        input.split_once('/').ok_or_else(|| format!("invalid https remote '{input}'"))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn split_owner_name(path: &str) -> Result<(&str, &str), crate::domain::error::DomainError> {
+fn split_owner_name(path: &str) -> Result<(&str, &str), Box<dyn std::error::Error>> {
     let trimmed = path.trim_start_matches('/');
     let parts = trimmed.split('/').collect::<Vec<_>>();
     match parts.as_slice() {

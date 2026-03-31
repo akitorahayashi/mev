@@ -35,7 +35,7 @@ pub struct DependencyContainer {
 #[allow(dead_code)]
 impl DependencyContainer {
     /// Construct the context from an ansible asset directory.
-    pub fn new(ansible_dir: ResolvedAnsibleDir) -> Result<Self, crate::domain::error::AppError> {
+    pub fn new(ansible_dir: ResolvedAnsibleDir) -> Result<Self, Box<dyn std::error::Error>> {
         let local_config_root = paths::local_config_root()?;
         let (ansible_dir, ansible_temp_dir) = ansible_dir.into_parts();
 
@@ -54,7 +54,7 @@ impl DependencyContainer {
     }
 
     /// Construct a lightweight identity-only context (no ansible asset resolution needed).
-    pub fn for_identity() -> Result<Self, crate::domain::error::AppError> {
+    pub fn for_identity() -> Result<Self, Box<dyn std::error::Error>> {
         let local_config_root = paths::local_config_root()?;
         Ok(Self {
             ansible: AnsibleAdapter::empty(&local_config_root),

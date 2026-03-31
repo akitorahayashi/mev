@@ -2,7 +2,7 @@
 
 use std::path::{Component, Path};
 
-pub fn validate_submodule_path(path: &str) -> Result<(), crate::domain::error::DomainError> {
+pub fn validate_submodule_path(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new(path);
 
     let is_valid = !path.as_os_str().is_empty()

@@ -73,7 +73,7 @@ impl AnsibleAdapter {
     pub fn new(
         ansible_dir: &Path,
         local_config_root: &Path,
-    ) -> Result<Self, crate::domain::error::AppError> {
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
@@ -250,9 +250,9 @@ impl AnsiblePort for AnsibleAdapter {
 type Catalog = (HashMap<String, Vec<String>>, HashMap<String, String>);
 
 /// Load tag-to-role mappings from a playbook.yml file.
-fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, crate::domain::error::AppError> {
+fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(playbook_path)?;
-    let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content).map_err(|e| crate::domain::error::AppError::Config(e.to_string()))?;
+    let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)?;
 
     let role_key = serde_yaml::Value::String("role".to_string());
     let tags_key = serde_yaml::Value::String("tags".to_string());
@@ -280,10 +280,10 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, crate::domain::error
                             if let Some(existing) = tag_to_role.get(tag)
                                 && existing != &name
                             {
-                                return Err(crate::domain::error::AppError::Config(format!(
+                                return Err(format!(
                                     "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
                                 )
-                                ));
+                                .into());
                             }
                             tag_to_role.insert(tag.to_string(), name.to_string());
                         }
@@ -305,7 +305,7 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_custom_valid() -> Result<(), crate::domain::error::AppError> {
+    fn test_resolve_ansible_playbook_bin_custom_valid() -> Result<(), Box<dyn std::error::Error>> {
         let dir = tempdir()?;
         let bin_path = dir.path().join("ansible-playbook");
         fs::write(&bin_path, "")?;
@@ -331,7 +331,7 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_pipx_home_valid() -> Result<(), crate::domain::error::AppError>
+    fn test_resolve_ansible_playbook_bin_pipx_home_valid() -> Result<(), Box<dyn std::error::Error>>
     {
         let dir = tempdir()?;
         let pipx_home = dir.path().join("pipx");
@@ -349,7 +349,7 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_ansible_playbook_bin_home_valid() -> Result<(), crate::domain::error::AppError> {
+    fn test_resolve_ansible_playbook_bin_home_valid() -> Result<(), Box<dyn std::error::Error>> {
         let dir = tempdir()?;
         let home = dir.path().join("home");
         let bin_dir = home.join(".local").join("pipx").join("venvs").join("ansible").join("bin");
@@ -374,7 +374,7 @@ mod tests {
     }
 
     #[test]
-    fn test_build_command_success() -> Result<(), crate::domain::error::AppError> {
+    fn test_build_command_success() -> Result<(), Box<dyn std::error::Error>> {
         let dir = tempdir()?;
         let ansible_dir = dir.path().join("ansible");
         fs::create_dir_all(&ansible_dir)?;
