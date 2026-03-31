@@ -12,6 +12,12 @@ pub struct Identity {
     pub email: String,
 }
 
+impl Identity {
+    pub fn is_configured(&self) -> bool {
+        !self.name.is_empty() && !self.email.is_empty()
+    }
+}
+
 /// A resolved, valid identity target for switching.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SwitchIdentity {

@@ -19,7 +19,7 @@ pub fn execute(ctx: &DependencyContainer, identity: SwitchIdentity) -> Result<()
         .get_identity(identity)?
         .ok_or_else(|| AppError::Config(format!("failed to load {} identity", identity)))?;
 
-    if identity_config.name.is_empty() || identity_config.email.is_empty() {
+    if !identity_config.is_configured() {
         return Err(AppError::Config(format!(
             "{identity} identity is not configured. Run 'mev identity set' to configure."
         )));
