@@ -36,10 +36,10 @@ pub fn run(args: LabelsResetArgs) -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use serial_test::serial;
-    use crate::testing::env_mock;
     use super::*;
+    use crate::testing::env_mock;
+    use serial_test::serial;
+    use std::fs;
 
     #[test]
     #[serial]
@@ -52,22 +52,28 @@ mod tests {
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 echo "git@github.com:owner/repo.git"
-            "#, git_args.display()),
+            "#,
+                git_args.display()
+            ),
         );
         env_mock::create_mock_bin(
             "gh",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 if [ "$1" = "label" ] && [ "$2" = "list" ]; then
                     echo "bugs\nfeats"
                 else
                     exit 0
                 fi
-            "#, gh_args.display()),
+            "#,
+                gh_args.display()
+            ),
         );
 
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
@@ -92,22 +98,28 @@ mod tests {
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 echo "git@github.com:owner/repo.git"
-            "#, git_args.display()),
+            "#,
+                git_args.display()
+            ),
         );
         env_mock::create_mock_bin(
             "gh",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 if [ "$1" = "label" ] && [ "$2" = "list" ]; then
                     echo ""
                 else
                     exit 0
                 fi
-            "#, gh_args.display()),
+            "#,
+                gh_args.display()
+            ),
         );
 
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };

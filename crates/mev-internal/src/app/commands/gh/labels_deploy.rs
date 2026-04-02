@@ -38,15 +38,16 @@ pub fn run(args: LabelsDeployArgs) -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use serial_test::serial;
-    use crate::testing::env_mock;
     use super::*;
+    use crate::testing::env_mock;
+    use serial_test::serial;
+    use std::fs;
 
     #[test]
     #[serial]
     #[allow(unused_unsafe)]
-    fn deploys_labels_successfully_without_replacements() -> Result<(), Box<dyn std::error::Error>> {
+    fn deploys_labels_successfully_without_replacements() -> Result<(), Box<dyn std::error::Error>>
+    {
         let temp_dir = tempfile::tempdir()?;
         let git_args = temp_dir.path().join("git_args.txt");
         let gh_args = temp_dir.path().join("gh_args.txt");
@@ -54,22 +55,28 @@ mod tests {
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 echo "git@github.com:owner/repo.git"
-            "#, git_args.display()),
+            "#,
+                git_args.display()
+            ),
         );
         env_mock::create_mock_bin(
             "gh",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 if [ "$1" = "label" ] && [ "$2" = "list" ]; then
                     echo ""
                 else
                     exit 0
                 fi
-            "#, gh_args.display()),
+            "#,
+                gh_args.display()
+            ),
         );
 
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
@@ -94,22 +101,28 @@ mod tests {
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 echo "git@github.com:owner/repo.git"
-            "#, git_args.display()),
+            "#,
+                git_args.display()
+            ),
         );
         env_mock::create_mock_bin(
             "gh",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 if [ "$1" = "label" ] && [ "$2" = "list" ]; then
                     echo "bugs"
                 else
                     exit 0
                 fi
-            "#, gh_args.display()),
+            "#,
+                gh_args.display()
+            ),
         );
 
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };

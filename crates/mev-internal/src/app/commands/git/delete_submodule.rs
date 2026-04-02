@@ -25,10 +25,10 @@ pub fn run(args: DeleteSubmoduleArgs) -> Result<(), Box<dyn std::error::Error>> 
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use serial_test::serial;
-    use crate::testing::env_mock;
     use super::*;
+    use crate::testing::env_mock;
+    use serial_test::serial;
+    use std::fs;
 
     #[test]
     #[serial]
@@ -40,10 +40,13 @@ mod tests {
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
-            &format!(r#"#!/bin/sh
+            &format!(
+                r#"#!/bin/sh
                 echo "$@" >> "{}"
                 exit 0
-            "#, git_args.display()),
+            "#,
+                git_args.display()
+            ),
         );
 
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
