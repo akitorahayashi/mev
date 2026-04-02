@@ -114,8 +114,9 @@ fn format_value(def: &SettingDefinition, raw_value: &str) -> Result<String, AppE
             } else {
                 Cow::Borrowed(raw_value)
             };
-            serde_json::to_string(&value)
-                .map_err(|e| AppError::Backup(format!("failed to serialize value: {e}")))
+            serde_json::to_string(&value).map_err(|e| {
+                AppError::Backup(format!("failed to serialize value for key '{}': {e}", def.key))
+            })
         }
     }
 }
@@ -179,8 +180,9 @@ fn format_string(
         value = Cow::Owned(value.replacen(&home, "$HOME", 1));
     }
 
-    serde_json::to_string(&value)
-        .map_err(|e| AppError::Backup(format!("failed to serialize string value: {e}")))
+    serde_json::to_string(&value).map_err(|e| {
+        AppError::Backup(format!("failed to serialize string value for key '{key}': {e}"))
+    })
 }
 
 fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
