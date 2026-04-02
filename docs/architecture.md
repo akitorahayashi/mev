@@ -68,6 +68,10 @@ tests/
 - Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
 - Every file belongs to a clear, specific category
 
+### Adapter Module Topology
+- `src/adapters/ansible/` owns multiple components and preserves internal module separation
+- Other adapter directories own their concrete implementations directly in each `mod.rs` without nested proxy submodules
+
 ## Design Rules
 
 ### Path Resolution
