@@ -1,4 +1,8 @@
 //! Identity store adapter — JSON persistence on local disk.
+//!
+//! The base path is `~/.config/` — the project convention for macOS.
+//! Ansible roles reference `local_config_root` as an extra var and expect
+//! `~/.config/mev/roles/`, so this path must not change.
 
 use std::path::{Path, PathBuf};
 
