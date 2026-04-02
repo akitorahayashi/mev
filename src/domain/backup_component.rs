@@ -65,10 +65,13 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
 
 /// Resolve a backup component identifier or alias to a `BackupComponent`.
 pub fn resolve_backup_component(input: &str) -> Option<BackupComponent> {
-    BACKUP_COMPONENT_ALIASES
-        .iter()
-        .find(|&&(alias, _)| alias == input)
-        .map(|&(_, component)| component)
+    let lower = input.to_lowercase();
+    for &(alias, component) in BACKUP_COMPONENT_ALIASES {
+        if lower == alias {
+            return Some(component);
+        }
+    }
+    None
 }
 
 /// Validate that the input maps to a `BackupComponent`.
@@ -99,6 +102,16 @@ mod tests {
     #[test]
     fn backup_component_resolves_vscode_extensions_alias() {
         assert_eq!(resolve_backup_component("vscode-extensions"), Some(BackupComponent::Vscode));
+    }
+
+    #[test]
+    fn backup_component_resolves_system_case_insensitively() {
+        assert_eq!(resolve_backup_component("SYSTEM"), Some(BackupComponent::System));
+    }
+
+    #[test]
+    fn backup_component_resolves_vscode_alias_case_insensitively() {
+        assert_eq!(resolve_backup_component("VSCODE-EXTENSIONS"), Some(BackupComponent::Vscode));
     }
 
     #[test]
