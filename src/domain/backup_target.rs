@@ -110,7 +110,8 @@ mod tests {
         let err = validate_backup_target("unknown").unwrap_err();
         match err {
             AppError::InvalidBackupTarget(msg) => {
-                assert!(msg.contains("'unknown' is not a valid target"));
+                assert!(msg.contains("'unknown'"));
+                assert!(msg.contains("Valid:"));
             }
             _ => panic!("Expected InvalidBackupTarget error"),
         }
