@@ -25,4 +25,7 @@ pub enum DomainError {
 
     #[error("{0}")]
     ProcessFailed(String),
+
+    #[error("failed to execute '{0}': {1}")]
+    CommandExecution(String, #[source] std::io::Error),
 }

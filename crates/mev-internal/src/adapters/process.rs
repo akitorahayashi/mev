@@ -4,7 +4,9 @@ use crate::domain::DomainError;
 use std::process::{Command, Output};
 
 pub fn run_status(mut command: Command, description: &str) -> Result<(), DomainError> {
-    let status = command.status()?;
+    let status = command
+        .status()
+        .map_err(|source| DomainError::CommandExecution(description.to_string(), source))?;
     if status.success() {
         return Ok(());
     }
@@ -16,7 +18,9 @@ pub fn run_status(mut command: Command, description: &str) -> Result<(), DomainE
 }
 
 pub fn run_output(mut command: Command, description: &str) -> Result<Output, DomainError> {
-    let output = command.output()?;
+    let output = command
+        .output()
+        .map_err(|source| DomainError::CommandExecution(description.to_string(), source))?;
     if output.status.success() {
         return Ok(output);
     }
@@ -60,5 +64,33 @@ mod tests {
         let result = run_output(command, "failing script");
         let error = result.expect_err("expected error");
         assert_eq!(error.to_string(), "failing script failed: some error");
+    }
+
+    #[test]
+    fn run_status_returns_command_execution_error_when_command_is_missing() {
+        let command = Command::new("definitely-not-a-real-binary-for-mev");
+        let error = run_status(command, "missing command").expect_err("expected error");
+
+        match error {
+            crate::domain::DomainError::CommandExecution(description, source) => {
+                assert_eq!(description, "missing command");
+                assert_eq!(source.kind(), std::io::ErrorKind::NotFound);
+            }
+            other => panic!("expected CommandExecution, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn run_output_returns_command_execution_error_when_command_is_missing() {
+        let command = Command::new("definitely-not-a-real-binary-for-mev");
+        let error = run_output(command, "missing command").expect_err("expected error");
+
+        match error {
+            crate::domain::DomainError::CommandExecution(description, source) => {
+                assert_eq!(description, "missing command");
+                assert_eq!(source.kind(), std::io::ErrorKind::NotFound);
+            }
+            other => panic!("expected CommandExecution, got {other:?}"),
+        }
     }
 }
