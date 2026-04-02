@@ -231,10 +231,16 @@ mod tests {
     #[test]
     fn test_format_numeric() {
         assert_eq!(format_numeric("42", &serde_yaml::Value::Null, false), "42");
-        assert_eq!(format_numeric("", &serde_yaml::Value::Number(serde_yaml::Number::from(42)), false), "42");
+        assert_eq!(
+            format_numeric("", &serde_yaml::Value::Number(serde_yaml::Number::from(42)), false),
+            "42"
+        );
         assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, true), "42.5");
         assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, false), "42"); // float to int fallback
-        assert_eq!(format_numeric("invalid", &serde_yaml::Value::String("invalid".to_string()), false), "invalid");
+        assert_eq!(
+            format_numeric("invalid", &serde_yaml::Value::String("invalid".to_string()), false),
+            "invalid"
+        );
     }
 
     #[test]
@@ -245,7 +251,10 @@ mod tests {
             std::env::set_var("HOME", "/mock/home");
         }
         assert_eq!(format_string("hello", "key", &serde_yaml::Value::Null), "\"hello\"");
-        assert_eq!(format_string("", "key", &serde_yaml::Value::String("default".to_string())), "\"default\"");
+        assert_eq!(
+            format_string("", "key", &serde_yaml::Value::String("default".to_string())),
+            "\"default\""
+        );
 
         let path = "/mock/home/file.txt";
         assert_eq!(format_string(path, "location", &serde_yaml::Value::Null), "\"$HOME/file.txt\"");
@@ -263,7 +272,10 @@ mod tests {
         let lines = build_entry(&def, "\"value\"");
         assert_eq!(lines.len(), 2);
         assert_eq!(lines[0], "# Test comment newline");
-        assert_eq!(lines[1], "- { key: \"TestKey\", domain: \"TestDomain\", type: \"string\", value: \"value\" }");
+        assert_eq!(
+            lines[1],
+            "- { key: \"TestKey\", domain: \"TestDomain\", type: \"string\", value: \"value\" }"
+        );
     }
 
     #[test]
@@ -294,6 +306,9 @@ mod tests {
             comment: None,
         };
         assert_eq!(format_value(&default_def, ""), "\"default\"");
-        assert_eq!(format_value(&default_def, "{\"key\":\"value\"}"), "\"{\\\"key\\\":\\\"value\\\"}\"");
+        assert_eq!(
+            format_value(&default_def, "{\"key\":\"value\"}"),
+            "\"{\\\"key\\\":\\\"value\\\"}\""
+        );
     }
 }

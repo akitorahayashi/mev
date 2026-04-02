@@ -74,7 +74,10 @@ fn backup_system_missing_key_fallback() {
     )
     .unwrap();
 
-    ctx.create_mock_command("defaults", "#!/bin/sh\necho \"does not exist\"\n>&2 echo \"does not exist\"\nexit 1\n");
+    ctx.create_mock_command(
+        "defaults",
+        "#!/bin/sh\necho \"does not exist\"\n>&2 echo \"does not exist\"\nexit 1\n",
+    );
 
     ctx.cli()
         .env("PATH", ctx.path_with_mock_commands())
