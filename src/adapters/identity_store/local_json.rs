@@ -14,15 +14,11 @@ impl IdentityFileStore {
     pub fn new(identity_path: PathBuf) -> Self {
         Self { identity_path }
     }
-
-    fn legacy_config_path(&self) -> PathBuf {
-        self.identity_path.with_file_name("config.json")
-    }
 }
 
 impl IdentityStore for IdentityFileStore {
     fn exists(&self) -> bool {
-        self.identity_path.exists() || self.legacy_config_path().exists()
+        self.identity_path.exists()
     }
 
     fn load(&self) -> Result<IdentityState, AppError> {
@@ -32,20 +28,7 @@ impl IdentityStore for IdentityFileStore {
                 .map_err(|e| AppError::Config(format!("failed to parse identity config: {e}")));
         }
 
-        if self.legacy_config_path().exists() {
-            let content = std::fs::read_to_string(self.legacy_config_path())?;
-            let state: IdentityState = serde_json::from_str(&content).map_err(|e| {
-                AppError::Config(format!("failed to parse legacy identity config: {e}"))
-            })?;
-
-            // Migrate automatically to the new path.
-            if let Err(e) = self.save(&state) {
-                eprintln!("Warning: failed to migrate identity config: {e}");
-            }
-            return Ok(state);
-        }
-
-        Err(AppError::Config("no identity configuration found".to_string()))
+        Err(AppError::Config("identity configuration does not exist".to_string()))
     }
 
     fn save(&self, state: &IdentityState) -> Result<(), AppError> {
@@ -122,18 +105,6 @@ mod tests {
     }
 
     #[test]
-    fn exists_returns_true_when_legacy_exists() -> Result<(), Box<dyn std::error::Error>> {
-        let dir = tempdir()?;
-        let legacy_path = dir.path().join("config.json");
-        std::fs::write(&legacy_path, "{}")?;
-
-        let path = dir.path().join("identity.json");
-        let store = IdentityFileStore::new(path);
-        assert!(store.exists());
-        Ok(())
-    }
-
-    #[test]
     fn load_fails_when_neither_exists() -> Result<(), Box<dyn std::error::Error>> {
         let dir = tempdir()?;
         let path = dir.path().join("identity.json");
@@ -154,28 +125,6 @@ mod tests {
         let store = IdentityFileStore::new(path);
         let loaded = store.load()?;
         assert_eq!(loaded.personal.email, "personal@example.com");
-        Ok(())
-    }
-
-    #[test]
-    fn load_succeeds_from_legacy_and_migrates() -> Result<(), Box<dyn std::error::Error>> {
-        let dir = tempdir()?;
-        let legacy_path = dir.path().join("config.json");
-        let state = create_dummy_state();
-        let content = serde_json::to_string(&state)?;
-        std::fs::write(&legacy_path, content)?;
-
-        let path = dir.path().join("identity.json");
-        let store = IdentityFileStore::new(path.clone());
-
-        assert!(!path.exists());
-
-        let loaded = store.load()?;
-        assert_eq!(loaded.personal.email, "personal@example.com");
-
-        // Ensure it migrated
-        assert!(path.exists());
-
         Ok(())
     }
 
