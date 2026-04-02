@@ -93,10 +93,7 @@ mod tests {
                 name: "Personal Name".to_string(),
                 email: "personal@example.com".to_string(),
             },
-            work: Identity {
-                name: "Work Name".to_string(),
-                email: "work@example.com".to_string(),
-            },
+            work: Identity { name: "Work Name".to_string(), email: "work@example.com".to_string() },
         }
     }
 
