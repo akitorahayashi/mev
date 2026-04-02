@@ -32,7 +32,6 @@ mod tests {
 
     #[test]
     #[serial]
-    #[allow(unused_unsafe)]
     fn deletes_submodule_successfully() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let git_args = temp_dir.path().join("git_args.txt");
@@ -49,8 +48,8 @@ mod tests {
             ),
         );
 
-        let _guard = unsafe { env_mock::PathGuard::new(&bin_path) };
-        let _dir_guard = unsafe { env_mock::DirGuard::new(temp_dir.path()) };
+        let _guard = env_mock::PathGuard::new(&bin_path);
+        let _dir_guard = env_mock::DirGuard::new(temp_dir.path());
 
         let modules_path = temp_dir.path().join(".git").join("modules").join("vendor/some-dep");
         fs::create_dir_all(&modules_path)?;
@@ -66,12 +65,10 @@ mod tests {
     }
 
     #[test]
-    #[serial]
-    #[allow(unused_unsafe)]
     fn fails_on_invalid_submodule_path() -> Result<(), Box<dyn std::error::Error>> {
-        let result = run(DeleteSubmoduleArgs { submodule_path: "/absolute/path".to_string() });
-        assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("invalid submodule path"));
+        let err =
+            run(DeleteSubmoduleArgs { submodule_path: "/absolute/path".to_string() }).unwrap_err();
+        assert!(err.to_string().contains("invalid submodule path"));
         Ok(())
     }
 }
