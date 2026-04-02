@@ -28,9 +28,7 @@ pub fn deploy_for_tags(
     let mut deployed = HashSet::new();
     for tag in tags {
         let Some(role) = ansible.role_for_tag(tag) else {
-            return Err(AppError::InvalidTag(format!(
-                "tag '{tag}' does not map to any known role"
-            )));
+            return Err(AppError::InvalidTag(tag.to_string()));
         };
         if !available.contains(role) || !deployed.insert(role.to_string()) {
             continue;

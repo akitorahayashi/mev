@@ -72,10 +72,7 @@ pub fn resolve_backup_target(input: &str) -> Option<BackupTarget> {
 pub fn validate_backup_target(input: &str) -> Result<BackupTarget, AppError> {
     resolve_backup_target(input).ok_or_else(|| {
         let valid: Vec<_> = BackupTarget::all().iter().map(|t| t.name()).collect();
-        AppError::InvalidBackupTarget(format!(
-            "'{input}' is not a valid target. Valid targets: {}",
-            valid.join(", ")
-        ))
+        AppError::InvalidBackupTarget(format!("'{}'. Valid: {}", input, valid.join(", ")))
     })
 }
 
