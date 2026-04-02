@@ -13,9 +13,9 @@ pub struct SwitchArgs {
 }
 
 pub fn run(args: SwitchArgs) -> Result<(), AppError> {
-    let identity = identity::resolve_switch_identity(&args.identity).ok_or_else(|| {
-        AppError::InvalidIdentity(format!(
-            "invalid identity '{}'. Valid: personal (p), work (w)",
+    let identity = identity::resolve_identity_scope(&args.identity).ok_or_else(|| {
+        AppError::InvalidIdentityScope(format!(
+            "invalid identity scope '{}'. Valid: personal (p), work (w)",
             args.identity
         ))
     })?;
