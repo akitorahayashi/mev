@@ -15,14 +15,20 @@ pub struct DirGuard {
 impl DirGuard {
     pub fn new(target_dir: &Path) -> Self {
         let original_dir = env::current_dir().unwrap();
-        env::set_current_dir(target_dir).unwrap();
+        #[allow(unused_unsafe)]
+        unsafe {
+            env::set_current_dir(target_dir).unwrap();
+        }
         Self { original_dir }
     }
 }
 
 impl Drop for DirGuard {
     fn drop(&mut self) {
-        let _ = env::set_current_dir(&self.original_dir);
+        #[allow(unused_unsafe)]
+        unsafe {
+            let _ = env::set_current_dir(&self.original_dir);
+        }
     }
 }
 
@@ -53,6 +59,7 @@ impl PathGuard {
         paths.insert(0, bin_dir.to_path_buf());
         let new_path = env::join_paths(paths).expect("Failed to construct new PATH");
         // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        #[allow(unused_unsafe)]
         unsafe {
             env::set_var("PATH", new_path);
         }
@@ -64,11 +71,13 @@ impl Drop for PathGuard {
     fn drop(&mut self) {
         if let Some(original) = &self.original_path {
             // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            #[allow(unused_unsafe)]
             unsafe {
                 env::set_var("PATH", original);
             }
         } else {
             // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            #[allow(unused_unsafe)]
             unsafe {
                 env::remove_var("PATH");
             }
