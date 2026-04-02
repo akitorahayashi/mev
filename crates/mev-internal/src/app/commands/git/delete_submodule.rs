@@ -3,8 +3,8 @@
 use clap::Args;
 
 use crate::adapters::git;
-use crate::domain::submodule_path;
 use crate::domain::DomainError;
+use crate::domain::submodule_path;
 
 #[derive(Args)]
 pub struct DeleteSubmoduleArgs {

@@ -1,7 +1,7 @@
 //! Repository target resolution.
 
-use crate::domain::repository_ref::RepositoryRef;
 use crate::domain::DomainError;
+use crate::domain::repository_ref::RepositoryRef;
 
 pub fn resolve_repo_ref(
     explicit_repo: Option<&str>,
@@ -15,7 +15,10 @@ pub fn resolve_repo_ref(
         return RepositoryRef::from_remote_url(origin_url);
     }
 
-    Err(DomainError::MissingRepository("could not determine repository: pass --repo or run inside a git repository with origin".into()))
+    Err(DomainError::MissingRepository(
+        "could not determine repository: pass --repo or run inside a git repository with origin"
+            .into(),
+    ))
 }
 
 #[cfg(test)]

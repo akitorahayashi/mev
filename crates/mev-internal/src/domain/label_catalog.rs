@@ -1,7 +1,7 @@
 //! Bundled GitHub label catalog.
 
-use serde::Deserialize;
 use crate::domain::DomainError;
+use serde::Deserialize;
 
 const LABELS_JSON: &str = include_str!("../assets/gh/labels.json");
 

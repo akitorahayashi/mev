@@ -15,7 +15,9 @@ impl RepositoryRef {
         match parts.as_slice() {
             [owner, name] => Self::new(None, owner, name),
             [host, owner, name] => Self::new(Some(*host), owner, name),
-            _ => Err(DomainError::InvalidRepositoryRef(format!("invalid repository reference '{input}'"))),
+            _ => Err(DomainError::InvalidRepositoryRef(format!(
+                "invalid repository reference '{input}'"
+            ))),
         }
     }
 
@@ -46,13 +48,11 @@ impl RepositoryRef {
         }
     }
 
-    fn new(
-        host: Option<&str>,
-        owner: &str,
-        name: &str,
-    ) -> Result<Self, DomainError> {
+    fn new(host: Option<&str>, owner: &str, name: &str) -> Result<Self, DomainError> {
         if owner.is_empty() || name.is_empty() {
-            return Err(DomainError::InvalidRepositoryRef("repository owner and name must not be empty".into()));
+            return Err(DomainError::InvalidRepositoryRef(
+                "repository owner and name must not be empty".into(),
+            ));
         }
 
         Ok(Self {
@@ -64,22 +64,25 @@ impl RepositoryRef {
 }
 
 fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) =
-        input.split_once(':').ok_or_else(|| DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'")))?;
+    let (host, path) = input.split_once(':').ok_or_else(|| {
+        DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
 fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) =
-        input.split_once('/').ok_or_else(|| DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'")))?;
+    let (host, path) = input.split_once('/').ok_or_else(|| {
+        DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
 fn parse_https_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) =
-        input.split_once('/').ok_or_else(|| DomainError::InvalidRepositoryRef(format!("invalid https remote '{input}'")))?;
+    let (host, path) = input.split_once('/').ok_or_else(|| {
+        DomainError::InvalidRepositoryRef(format!("invalid https remote '{input}'"))
+    })?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }

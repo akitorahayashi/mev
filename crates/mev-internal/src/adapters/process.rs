@@ -1,24 +1,21 @@
 //! Process execution adapter.
 
-use std::process::{Command, Output};
 use crate::domain::DomainError;
+use std::process::{Command, Output};
 
-pub fn run_status(
-    mut command: Command,
-    description: &str,
-) -> Result<(), DomainError> {
+pub fn run_status(mut command: Command, description: &str) -> Result<(), DomainError> {
     let status = command.status()?;
     if status.success() {
         return Ok(());
     }
 
-    Err(DomainError::ProcessFailed(format!("{description} exited with code {}", status.code().unwrap_or(1))))
+    Err(DomainError::ProcessFailed(format!(
+        "{description} exited with code {}",
+        status.code().unwrap_or(1)
+    )))
 }
 
-pub fn run_output(
-    mut command: Command,
-    description: &str,
-) -> Result<Output, DomainError> {
+pub fn run_output(mut command: Command, description: &str) -> Result<Output, DomainError> {
     let output = command.output()?;
     if output.status.success() {
         return Ok(output);

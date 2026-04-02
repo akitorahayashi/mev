@@ -13,10 +13,7 @@ pub struct GitAdapter {
 }
 
 impl GitAdapter {
-    pub fn delete_submodule_worktree(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), DomainError> {
+    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), DomainError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -30,10 +27,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_module_dir(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), DomainError> {
+    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), DomainError> {
         let base_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
@@ -45,10 +39,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_config_section(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), DomainError> {
+    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), DomainError> {
         let output = process::run_output(
             self.git_command([
                 "config",

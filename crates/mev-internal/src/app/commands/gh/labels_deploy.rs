@@ -3,8 +3,8 @@
 use clap::Args;
 
 use crate::adapters::{gh, git};
-use crate::domain::{label_catalog, repo_target};
 use crate::domain::DomainError;
+use crate::domain::{label_catalog, repo_target};
 
 #[derive(Args)]
 pub struct LabelsDeployArgs {

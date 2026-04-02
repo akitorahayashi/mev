@@ -1,7 +1,7 @@
 //! GitHub CLI adapter.
 
-use clap::Subcommand;
 use crate::domain::DomainError;
+use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum GhCommand {
