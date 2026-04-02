@@ -84,7 +84,10 @@ impl IdentityStore for IdentityFileStore {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::IdentityFileStore;
+    use crate::domain::identity::{Identity, SwitchIdentity};
+    use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
+    use std::path::PathBuf;
     use tempfile::tempdir;
 
     fn create_dummy_state() -> IdentityState {
