@@ -8,7 +8,7 @@ fn switch_success_with_git() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
     let id_file = ctx.work_dir().join(".config/mev/identity.json");
-    std::fs::create_dir_all(id_file.parent().ok_or("No parent")?)?;
+    std::fs::create_dir_all(id_file.parent().ok_or("identity file path has no parent directory")?)?;
     std::fs::write(
         &id_file,
         r#"{"personal":{"name":"","email":""},"work":{"name":"John Doe","email":"john@example.com"}}"#,
@@ -35,7 +35,7 @@ fn switch_fails_if_identity_not_configured() -> Result<(), Box<dyn std::error::E
     let ctx = TestContext::new();
 
     let id_file = ctx.work_dir().join(".config/mev/identity.json");
-    std::fs::create_dir_all(id_file.parent().ok_or("No parent")?)?;
+    std::fs::create_dir_all(id_file.parent().ok_or("identity file path has no parent directory")?)?;
     std::fs::write(
         &id_file,
         r#"{"personal":{"name":"","email":""},"work":{"name":"","email":""}}"#,
