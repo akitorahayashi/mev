@@ -5,6 +5,7 @@ use std::process::Command;
 use crate::adapters::process;
 use crate::domain::label_catalog::LabelSpec;
 use crate::domain::repository_ref::RepositoryRef;
+use crate::domain::DomainError;
 
 #[derive(Default)]
 pub struct GhAdapter {
@@ -15,7 +16,7 @@ impl GhAdapter {
     pub fn list_label_names(
         &self,
         repo: &RepositoryRef,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<String>, DomainError> {
         let output = process::run_output(
             self.build_gh_command(
                 &["label", "list", "--limit", "9999", "--json", "name", "--jq", ".[].name"],
@@ -36,7 +37,7 @@ impl GhAdapter {
         &self,
         repo: &RepositoryRef,
         label_name: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), DomainError> {
         process::run_status(
             self.build_gh_command(&["label", "delete", label_name, "--yes"], repo),
             &format!("gh label delete {label_name} --repo {}", repo.as_gh_repo_arg()),
@@ -47,7 +48,7 @@ impl GhAdapter {
         &self,
         repo: &RepositoryRef,
         label: &LabelSpec,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), DomainError> {
         process::run_status(
             self.build_gh_command(
                 &[
