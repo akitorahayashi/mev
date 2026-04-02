@@ -27,7 +27,7 @@ pub enum SwitchIdentity {
 
 impl SwitchIdentity {
     /// Canonical string representation used for storage lookups and display.
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Personal => "personal",
             Self::Work => "work",
@@ -40,7 +40,7 @@ impl SwitchIdentity {
     }
 
     /// Input aliases for this identity (excluding the canonical name).
-    pub fn aliases(&self) -> &'static [&'static str] {
+    pub fn aliases(self) -> &'static [&'static str] {
         match self {
             Self::Personal => &["p"],
             Self::Work => &["w"],
@@ -59,7 +59,7 @@ pub fn resolve_switch_identity(input: &str) -> Option<SwitchIdentity> {
     let lower = input.to_lowercase();
     SwitchIdentity::all()
         .iter()
-        .find(|i| lower == i.as_str() || i.aliases().contains(&lower.as_str()))
+        .find(|i| lower == i.as_str() || i.aliases().contains(&lower.as_ref()))
         .copied()
 }
 

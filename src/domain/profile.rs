@@ -14,7 +14,7 @@ pub enum Profile {
 
 impl Profile {
     /// Canonical string representation passed to Ansible.
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Macbook => "macbook",
             Self::MacMini => "mac-mini",
@@ -22,12 +22,12 @@ impl Profile {
         }
     }
 
-    fn is_hardware_profile(&self) -> bool {
+    fn is_hardware_profile(self) -> bool {
         matches!(self, Self::Macbook | Self::MacMini)
     }
 
     /// Input aliases for this profile (excluding the canonical name).
-    pub fn aliases(&self) -> &'static [&'static str] {
+    pub fn aliases(self) -> &'static [&'static str] {
         match self {
             Self::Macbook => &["mbk"],
             Self::MacMini => &["mmn"],
@@ -61,6 +61,7 @@ pub fn validate_hardware_profile(input: &str) -> Result<Profile, AppError> {
             "'{input}' is not a hardware profile. Valid: {}",
             all_profiles()
                 .iter()
+                .copied()
                 .filter(|p| p.is_hardware_profile())
                 .map(Profile::as_str)
                 .collect::<Vec<_>>()
