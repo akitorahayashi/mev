@@ -169,7 +169,6 @@ mod tests {
     }
 
     #[test]
-    #[serial]
     fn remove_submodule_module_dir_removes_directory() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
 

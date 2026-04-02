@@ -15,20 +15,14 @@ pub struct DirGuard {
 impl DirGuard {
     pub fn new(target_dir: &Path) -> Self {
         let original_dir = env::current_dir().unwrap();
-        #[allow(unused_unsafe)]
-        unsafe {
-            env::set_current_dir(target_dir).unwrap();
-        }
+        env::set_current_dir(target_dir).unwrap();
         Self { original_dir }
     }
 }
 
 impl Drop for DirGuard {
     fn drop(&mut self) {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let _ = env::set_current_dir(&self.original_dir);
-        }
+        let _ = env::set_current_dir(&self.original_dir);
     }
 }
 
