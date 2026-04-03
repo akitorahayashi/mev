@@ -12,7 +12,7 @@ jobs:
     name: Build mev darwin-aarch64
     runs-on: macos-14
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
