@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-04-04"
-author_role: "rustacean"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-Errors are losing domain meaning and explicit context because they collapse specific failures into broadly typed variants (`AppError::Config` and `AppError::Backup`) wrapping only a `String` message.
 
 ## Goal
 
 Refactor error propagation to use more specific types or variants that retain structured data (like the failed path, operation, or nested error types) rather than collapsing everything into strings. This ensures actionable diagnosis and boundary context retention.
+
+## Problem
+
+Errors are losing domain meaning and explicit context because they collapse specific failures into broadly typed variants (`AppError::Config` and `AppError::Backup`) wrapping only a `String` message.
 
 ## Context
 
@@ -36,3 +34,14 @@ In `src/domain/error.rs`, variants like `AppError::Config(String)` and `AppError
 - `src/domain/error.rs`
 - `src/adapters/identity_store.rs`
 - `src/app/commands/backup/system.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

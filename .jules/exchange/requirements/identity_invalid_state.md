@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-10-24"
-author_role: "modeler"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-The `Identity` model allows invalid states (empty strings for name and email) by relying on a runtime `is_configured` check instead of enforcing invariants via types.
 
 ## Goal
 
 Encode invariants at the boundaries so that invalid states (empty identities) are hard or impossible to express in the core domain model.
+
+## Problem
+
+The `Identity` model allows invalid states (empty strings for name and email) by relying on a runtime `is_configured` check instead of enforcing invariants via types.
 
 ## Context
 
@@ -31,3 +29,14 @@ First Principles dictate "Represent Valid States Only: encode invariants so inva
 - `src/domain/identity.rs`
 - `src/app/commands/switch/mod.rs`
 - `src/app/commands/identity/mod.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

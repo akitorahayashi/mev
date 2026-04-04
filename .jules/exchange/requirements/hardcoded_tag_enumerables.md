@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-10-24"
-author_role: "modeler"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-Tags and tag groups are hardcoded in `src/domain/tag.rs` rather than being generated dynamically from an authoritative source (like the Ansible catalog).
 
 ## Goal
 
 Generate enumerable values for tags dynamically from an authoritative source (e.g., the Ansible catalog/registry) to avoid hardcoding.
+
+## Problem
+
+Tags and tag groups are hardcoded in `src/domain/tag.rs` rather than being generated dynamically from an authoritative source (like the Ansible catalog).
 
 ## Context
 
@@ -27,3 +25,14 @@ Design principles state "Enumerable values are generated dynamically from author
 
 - `src/domain/tag.rs`
 - `src/app/commands/create/mod.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.
