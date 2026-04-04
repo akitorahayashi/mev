@@ -76,7 +76,7 @@ coverage:
     mise exec -- cargo tarpaulin \
         --engine llvm \
         --target-dir target/tarpaulin \
-        --packages mev \
+        --workspace \
         --exclude-files 'reference/*' \
         --out Stdout \
         --out Html \
