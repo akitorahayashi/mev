@@ -1,17 +1,15 @@
 ---
 label: "refacts"
-created_at: "2024-10-24"
-author_role: "modeler"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-Persistence concerns (`serde::Serialize`, `serde::Deserialize`) are leaking into core domain models (`Identity` and `IdentityState`).
 
 ## Goal
 
 Keep domain models independent of transport/persistence concerns by removing `serde` derivations from the core domain and handling serialization in the adapter layer.
+
+## Problem
+
+Persistence concerns (`serde::Serialize`, `serde::Deserialize`) are leaking into core domain models (`Identity` and `IdentityState`).
 
 ## Context
 
@@ -34,3 +32,14 @@ First Principles dictate "Boundary Sovereignty: keep domain models independent o
 - `src/domain/identity.rs`
 - `src/domain/ports/identity_store.rs`
 - `src/adapters/identity_store.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

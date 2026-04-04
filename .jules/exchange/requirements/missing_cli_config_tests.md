@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2025-05-24"
-author_role: "tracer"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-The `config` command CLI contract tests are entirely missing, and the command logic (`src/app/commands/config/mod.rs`) only has 16/33 lines covered.
 
 ## Goal
 
 Add CLI tests for the `config` command to verify that `mev config deploy` properly triggers the domain logic.
+
+## Problem
+
+The `config` command CLI contract tests are entirely missing, and the command logic (`src/app/commands/config/mod.rs`) only has 16/33 lines covered.
 
 ## Context
 
@@ -30,3 +28,14 @@ The `config` command orchestration interacts heavily with `AnsiblePort` and `FsP
 
 - `src/app/commands/config/mod.rs`
 - `tests/cli/config.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

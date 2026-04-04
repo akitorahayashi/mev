@@ -1,9 +1,11 @@
 ---
 label: "refacts"
-created_at: "2024-04-04"
-author_role: "taxonomist"
-confidence: "high"
+implementation_ready: true
 ---
+
+## Goal
+
+Standardize terminology by replacing the generic term "target" with more specific domain nouns where appropriate to prevent conceptual overloading.
 
 ## Problem
 
@@ -12,10 +14,6 @@ The word `target` is heavily overloaded across the codebase. It represents at le
 2. A generic CLI argument value for Backup components (`backup target`).
 3. A destination directory when moving or copying files (`deploy_configs.rs`).
 4. The cargo compilation output directory (`tests/harness/test_context.rs`).
-
-## Goal
-
-Standardize terminology by replacing the generic term "target" with more specific domain nouns where appropriate to prevent conceptual overloading.
 
 ## Context
 
@@ -46,3 +44,14 @@ The guiding principles mandate that domain models must not be generic and should
 - `src/app/commands/backup/system.rs`
 - `crates/mev-internal/src/app/commands/gh/labels_deploy.rs`
 - `crates/mev-internal/src/app/commands/gh/labels_reset.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

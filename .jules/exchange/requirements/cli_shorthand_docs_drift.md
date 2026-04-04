@@ -1,17 +1,15 @@
 ---
 label: "docs"
-created_at: "2024-04-04"
-author_role: "proofreader"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-The documentation in `docs/usage.md` claims that `mev cf dp` is a shorthand for `mev config deploy`. However, the CLI help output for `mev config --help` hides the `dp` alias because the implementation uses `alias = "dp"` instead of `visible_alias = "dp"`. This causes a drift where the documentation teaches a shorthand that the CLI itself does not document or advertise.
 
 ## Goal
 
 Ensure the CLI implementation advertises the shorthands that are taught in the official usage documentation by making them visible in the CLI help output.
+
+## Problem
+
+The documentation in `docs/usage.md` claims that `mev cf dp` is a shorthand for `mev config deploy`. However, the CLI help output for `mev config --help` hides the `dp` alias because the implementation uses `alias = "dp"` instead of `visible_alias = "dp"`. This causes a drift where the documentation teaches a shorthand that the CLI itself does not document or advertise.
 
 ## Context
 
@@ -29,3 +27,14 @@ The `mev` CLI relies heavily on aliases (e.g. `cr` for `create`, `mk` for `make`
 ## Change Scope
 
 - `src/app/cli/config.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

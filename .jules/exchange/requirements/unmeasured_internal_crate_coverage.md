@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2025-05-24"
-author_role: "tracer"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-The internal crate modules `crates/mev-internal/src/domain/repo_target.rs` and `crates/mev-internal/src/domain/repository_ref.rs` are reported as having 0% code coverage despite having comprehensive unit test modules in their files.
 
 ## Goal
 
 Determine why the `cargo tarpaulin` coverage report generated via `just coverage` is completely omitting the test execution for `mev-internal` unit tests, and adjust the coverage command or testing bounds to capture these critical path assertions.
+
+## Problem
+
+The internal crate modules `crates/mev-internal/src/domain/repo_target.rs` and `crates/mev-internal/src/domain/repository_ref.rs` are reported as having 0% code coverage despite having comprehensive unit test modules in their files.
 
 ## Context
 
@@ -32,3 +30,14 @@ The `repo_target` and `repository_ref` modules validate and resolve Git remote t
 ## Change Scope
 
 - `justfile`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.

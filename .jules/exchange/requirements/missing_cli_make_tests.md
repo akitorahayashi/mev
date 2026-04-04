@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2025-05-24"
-author_role: "tracer"
-confidence: "high"
+implementation_ready: true
 ---
-
-## Problem
-
-The `make` command orchestration (`src/app/commands/make/mod.rs`) has 0% line coverage, and its corresponding CLI contract test file (`tests/cli/make.rs`) is completely empty.
 
 ## Goal
 
 Implement CLI contract tests for the `make` command to ensure the execution plan creation, tag validation, and Ansible playbook invocation are covered and protected from regressions.
+
+## Problem
+
+The `make` command orchestration (`src/app/commands/make/mod.rs`) has 0% line coverage, and its corresponding CLI contract test file (`tests/cli/make.rs`) is completely empty.
 
 ## Context
 
@@ -30,3 +28,14 @@ The `make` command is a critical state-transitioning path for the CLI that orche
 
 - `src/app/commands/make/mod.rs`
 - `tests/cli/make.rs`
+
+## Constraints
+
+- Code changes must adhere to the project's strict design principles, such as single responsibility and accurate domain modeling.
+- Modifications should not inadvertently break unconnected tests or configurations.
+
+## Acceptance Criteria
+
+- The core issues detailed in the problem statements are resolved.
+- Required tests are written or passing after the change.
+- The identified file paths in the change scope have been appropriately modified according to the goal.
