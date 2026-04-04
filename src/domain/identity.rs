@@ -54,7 +54,8 @@ impl fmt::Display for IdentityScope {
     }
 }
 
-/// Resolve a identity scope input (alias or canonical) to a `IdentityScope`.
+/// Look up a switch target corresponding to the user's input.
+/// Returns `None` if the input does not match any known canonical name or alias.
 pub fn resolve_identity_scope(input: &str) -> Option<IdentityScope> {
     let lower = input.to_lowercase();
     IdentityScope::all()
