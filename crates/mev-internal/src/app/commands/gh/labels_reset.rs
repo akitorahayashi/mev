@@ -61,7 +61,7 @@ mod tests {
             "#,
                 test_env.gh_args_path.display()
             ),
-        );
+        )?;
 
         run(LabelsResetArgs { repo: None })?;
 
@@ -90,7 +90,7 @@ mod tests {
             "#,
                 test_env.gh_args_path.display()
             ),
-        );
+        )?;
 
         run(LabelsResetArgs { repo: Some("owner/repo".to_string()) })?;
 
