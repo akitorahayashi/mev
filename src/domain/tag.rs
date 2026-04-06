@@ -7,11 +7,7 @@ use std::collections::HashMap;
 /// If the tag matches a group name, returns the expanded list.
 /// Otherwise returns the tag as-is.
 pub fn resolve_tags(tag: &str, tag_groups: &HashMap<String, Vec<String>>) -> Vec<String> {
-    if let Some(group) = tag_groups.get(tag) {
-        group.clone()
-    } else {
-        vec![tag.to_string()]
-    }
+    if let Some(group) = tag_groups.get(tag) { group.clone() } else { vec![tag.to_string()] }
 }
 
 #[cfg(test)]
