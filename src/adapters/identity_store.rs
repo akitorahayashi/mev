@@ -7,8 +7,58 @@
 use std::path::{Path, PathBuf};
 
 use crate::domain::error::AppError;
-use crate::domain::identity::{Identity, IdentityScope};
-use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
+use crate::domain::identity::{Identity, IdentityConfig, IdentityScope};
+use crate::domain::ports::identity_store::IdentityStore;
+
+/// Top-level identity model stored on disk.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct IdentityState {
+    pub personal: IdentityDto,
+    pub work: IdentityDto,
+}
+
+/// DTO for a single identity in the identity store.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct IdentityDto {
+    pub name: String,
+    pub email: String,
+}
+
+impl From<IdentityConfig> for IdentityState {
+    fn from(config: IdentityConfig) -> Self {
+        Self {
+            personal: config.personal.into(),
+            work: config.work.into(),
+        }
+    }
+}
+
+impl From<IdentityState> for IdentityConfig {
+    fn from(state: IdentityState) -> Self {
+        Self {
+            personal: state.personal.into(),
+            work: state.work.into(),
+        }
+    }
+}
+
+impl From<Identity> for IdentityDto {
+    fn from(identity: Identity) -> Self {
+        Self {
+            name: identity.name,
+            email: identity.email,
+        }
+    }
+}
+
+impl From<IdentityDto> for Identity {
+    fn from(dto: IdentityDto) -> Self {
+        Self {
+            name: dto.name,
+            email: dto.email,
+        }
+    }
+}
 
 fn dot_config_dir() -> Result<PathBuf, AppError> {
     dirs::home_dir()
@@ -41,24 +91,26 @@ impl IdentityStore for IdentityFileStore {
         self.identity_path.exists()
     }
 
-    fn load(&self) -> Result<IdentityState, AppError> {
+    fn load(&self) -> Result<IdentityConfig, AppError> {
         if self.identity_path.exists() {
             let content = std::fs::read_to_string(&self.identity_path)?;
-            return serde_json::from_str(&content)
-                .map_err(|e| AppError::Config(format!("failed to parse identity config: {e}")));
+            let state: IdentityState = serde_json::from_str(&content)
+                .map_err(|e| AppError::Config(format!("failed to parse identity config: {e}")))?;
+            return Ok(state.into());
         }
 
         Err(AppError::Config("identity configuration does not exist".to_string()))
     }
 
-    fn save(&self, state: &IdentityState) -> Result<(), AppError> {
+    fn save(&self, config: &IdentityConfig) -> Result<(), AppError> {
         let parent = self
             .identity_path
             .parent()
             .ok_or_else(|| AppError::Config("identity path has no parent directory".to_string()))?;
         std::fs::create_dir_all(parent)?;
 
-        let content = serde_json::to_string_pretty(state)
+        let state: IdentityState = config.clone().into();
+        let content = serde_json::to_string_pretty(&state)
             .map_err(|e| AppError::Config(format!("failed to serialize identity config: {e}")))?;
 
         // Atomic write: write to temp file in same directory, then rename.
@@ -87,14 +139,14 @@ impl IdentityStore for IdentityFileStore {
 
 #[cfg(test)]
 mod tests {
-    use super::IdentityFileStore;
-    use crate::domain::identity::{Identity, IdentityScope};
-    use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
+    use super::{IdentityFileStore, IdentityState};
+    use crate::domain::identity::{Identity, IdentityConfig, IdentityScope};
+    use crate::domain::ports::identity_store::IdentityStore;
     use std::path::PathBuf;
     use tempfile::tempdir;
 
-    fn create_dummy_state() -> IdentityState {
-        IdentityState {
+    fn create_dummy_config() -> IdentityConfig {
+        IdentityConfig {
             personal: Identity {
                 name: "Personal Name".to_string(),
                 email: "personal@example.com".to_string(),
@@ -138,7 +190,8 @@ mod tests {
     fn load_succeeds_from_new_path() -> Result<(), Box<dyn std::error::Error>> {
         let dir = tempdir()?;
         let path = dir.path().join("identity.json");
-        let state = create_dummy_state();
+        let config = create_dummy_config();
+        let state: IdentityState = config.into();
         let content = serde_json::to_string(&state)?;
         std::fs::write(&path, content)?;
 
@@ -154,8 +207,8 @@ mod tests {
         let path = dir.path().join("nested").join("identity.json");
         let store = IdentityFileStore::new(path.clone());
 
-        let state = create_dummy_state();
-        store.save(&state)?;
+        let config = create_dummy_config();
+        store.save(&config)?;
 
         assert!(path.exists());
 
@@ -170,8 +223,8 @@ mod tests {
         let path = PathBuf::from("");
         let store = IdentityFileStore::new(path);
 
-        let state = create_dummy_state();
-        assert!(store.save(&state).is_err());
+        let config = create_dummy_config();
+        assert!(store.save(&config).is_err());
         Ok(())
     }
 
@@ -181,8 +234,8 @@ mod tests {
         let path = dir.path().join("identity.json");
         let store = IdentityFileStore::new(path);
 
-        let state = create_dummy_state();
-        store.save(&state)?;
+        let config = create_dummy_config();
+        store.save(&config)?;
 
         let personal = store.get_identity(IdentityScope::Personal)?.ok_or("missing personal")?;
         assert_eq!(personal.name, "Personal Name");

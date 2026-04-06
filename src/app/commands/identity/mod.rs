@@ -4,8 +4,8 @@ use std::io::Write;
 
 use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
-use crate::domain::identity::Identity;
-use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
+use crate::domain::identity::{Identity, IdentityConfig};
+use crate::domain::ports::identity_store::IdentityStore;
 
 /// Show current Git identity configuration.
 pub fn show(ctx: &DependencyContainer) -> Result<(), AppError> {
@@ -55,12 +55,12 @@ pub fn set(ctx: &DependencyContainer) -> Result<(), AppError> {
     let work_name = prompt("  Name", w_name_default)?;
     let work_email = prompt("  Email", w_email_default)?;
 
-    let state = IdentityState {
+    let config = IdentityConfig {
         personal: Identity { name: personal_name, email: personal_email },
         work: Identity { name: work_name, email: work_email },
     };
 
-    ctx.identity_store.save(&state)?;
+    ctx.identity_store.save(&config)?;
 
     println!();
     println!("Identity configuration saved to {}", ctx.identity_store.identity_path().display());

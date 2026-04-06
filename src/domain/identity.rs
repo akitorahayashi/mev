@@ -6,7 +6,7 @@
 use std::fmt;
 
 /// Name and email pair applied to global Git configuration.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Identity {
     pub name: String,
     pub email: String,
@@ -16,6 +16,13 @@ impl Identity {
     pub fn is_configured(&self) -> bool {
         !self.name.is_empty() && !self.email.is_empty()
     }
+}
+
+/// Top-level identity configuration containing personal and work identities.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IdentityConfig {
+    pub personal: Identity,
+    pub work: Identity,
 }
 
 /// A resolved, valid identity target for switching.
