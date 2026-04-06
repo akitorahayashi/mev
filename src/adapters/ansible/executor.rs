@@ -285,7 +285,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
     for doc in &docs {
         if let Some(vars) = doc.get("vars").and_then(|v| v.as_mapping()) {
             if let Some(tg) = vars
-                .get(&serde_yaml::Value::String("tag_groups".to_string()))
+                .get(serde_yaml::Value::String("tag_groups".to_string()))
                 .and_then(|v| v.as_mapping())
             {
                 for (k, v) in tg {
@@ -297,7 +297,7 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
                 }
             }
             if let Some(fst) = vars
-                .get(&serde_yaml::Value::String("full_setup_tags".to_string()))
+                .get(serde_yaml::Value::String("full_setup_tags".to_string()))
                 .and_then(|v| v.as_sequence())
             {
                 full_setup_tags =
