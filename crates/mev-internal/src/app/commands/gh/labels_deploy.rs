@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::adapters::{gh, git};
 use crate::domain::DomainError;
-use crate::domain::{label_catalog, repo_target};
+use crate::domain::{label_catalog, repo_resolution};
 
 #[derive(Args)]
 pub struct LabelsDeployArgs {
@@ -16,7 +16,7 @@ pub struct LabelsDeployArgs {
 pub fn run(args: LabelsDeployArgs) -> Result<(), DomainError> {
     let git_adapter = git::GitAdapter::default();
     let origin_url = args.repo.is_none().then(|| git_adapter.current_origin_url()).transpose()?;
-    let repo = repo_target::resolve_repo_ref(args.repo.as_deref(), origin_url.as_deref())?;
+    let repo = repo_resolution::resolve_repo_ref(args.repo.as_deref(), origin_url.as_deref())?;
 
     let gh_adapter = gh::GhAdapter::default();
     let existing_names = gh_adapter.list_label_names(&repo)?;
