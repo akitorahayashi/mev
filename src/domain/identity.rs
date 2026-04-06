@@ -5,16 +5,55 @@
 
 use std::fmt;
 
-/// Name and email pair applied to global Git configuration.
+/// Raw serialization model for Identity.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct Identity {
+pub struct RawIdentity {
     pub name: String,
     pub email: String,
 }
 
+/// Name and email pair applied to global Git configuration.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "RawIdentity", into = "RawIdentity")]
+pub struct Identity {
+    name: String,
+    email: String,
+}
+
 impl Identity {
-    pub fn is_configured(&self) -> bool {
-        !self.name.is_empty() && !self.email.is_empty()
+    /// Creates a new identity, ensuring fields are not empty.
+    pub fn new(name: impl Into<String>, email: impl Into<String>) -> Option<Self> {
+        let name = name.into();
+        let email = email.into();
+        if name.trim().is_empty() || email.trim().is_empty() {
+            None
+        } else {
+            Some(Self { name, email })
+        }
+    }
+
+    /// Gets the name of the identity.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Gets the email of the identity.
+    pub fn email(&self) -> &str {
+        &self.email
+    }
+}
+
+impl std::convert::TryFrom<RawIdentity> for Identity {
+    type Error = &'static str;
+
+    fn try_from(raw: RawIdentity) -> Result<Self, Self::Error> {
+        Self::new(raw.name, raw.email).ok_or("empty fields")
+    }
+}
+
+impl From<Identity> for RawIdentity {
+    fn from(id: Identity) -> Self {
+        Self { name: id.name, email: id.email }
     }
 }
 
