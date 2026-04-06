@@ -79,7 +79,8 @@ impl AnsibleAdapter {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let (tags_by_role, tag_to_role, tag_groups, full_setup_tags) = load_catalog(&playbook_path)?;
+        let (tags_by_role, tag_to_role, tag_groups, full_setup_tags) =
+            load_catalog(&playbook_path)?;
 
         Ok(Self {
             ansible_dir: ansible_dir.to_path_buf(),
@@ -283,16 +284,24 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
 
     for doc in &docs {
         if let Some(vars) = doc.get("vars").and_then(|v| v.as_mapping()) {
-            if let Some(tg) = vars.get(&serde_yaml::Value::String("tag_groups".to_string())).and_then(|v| v.as_mapping()) {
+            if let Some(tg) = vars
+                .get(&serde_yaml::Value::String("tag_groups".to_string()))
+                .and_then(|v| v.as_mapping())
+            {
                 for (k, v) in tg {
                     if let (Some(group_name), Some(seq)) = (k.as_str(), v.as_sequence()) {
-                        let group_tags: Vec<String> = seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+                        let group_tags: Vec<String> =
+                            seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
                         tag_groups.insert(group_name.to_string(), group_tags);
                     }
                 }
             }
-            if let Some(fst) = vars.get(&serde_yaml::Value::String("full_setup_tags".to_string())).and_then(|v| v.as_sequence()) {
-                full_setup_tags = fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+            if let Some(fst) = vars
+                .get(&serde_yaml::Value::String("full_setup_tags".to_string()))
+                .and_then(|v| v.as_sequence())
+            {
+                full_setup_tags =
+                    fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
             }
         }
 
