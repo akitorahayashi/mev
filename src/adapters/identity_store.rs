@@ -26,37 +26,25 @@ pub struct IdentityDto {
 
 impl From<IdentityConfig> for IdentityState {
     fn from(config: IdentityConfig) -> Self {
-        Self {
-            personal: config.personal.into(),
-            work: config.work.into(),
-        }
+        Self { personal: config.personal.into(), work: config.work.into() }
     }
 }
 
 impl From<IdentityState> for IdentityConfig {
     fn from(state: IdentityState) -> Self {
-        Self {
-            personal: state.personal.into(),
-            work: state.work.into(),
-        }
+        Self { personal: state.personal.into(), work: state.work.into() }
     }
 }
 
 impl From<Identity> for IdentityDto {
     fn from(identity: Identity) -> Self {
-        Self {
-            name: identity.name,
-            email: identity.email,
-        }
+        Self { name: identity.name, email: identity.email }
     }
 }
 
 impl From<IdentityDto> for Identity {
     fn from(dto: IdentityDto) -> Self {
-        Self {
-            name: dto.name,
-            email: dto.email,
-        }
+        Self { name: dto.name, email: dto.email }
     }
 }
 
