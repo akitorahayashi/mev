@@ -63,7 +63,7 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
     ("vscode-extensions", BackupComponent::Vscode),
 ];
 
-/// Look up a domain component corresponding to the user's input.
+/// Look up a backup component corresponding to the user's input.
 /// Returns `None` if the input does not map to a known canonical name or alias.
 pub fn resolve_backup_component(input: &str) -> Option<BackupComponent> {
     let lower = input.to_lowercase();
