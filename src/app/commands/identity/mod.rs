@@ -25,12 +25,12 @@ pub fn show(ctx: &DependencyContainer) -> Result<(), AppError> {
     if let Some(personal) = state.personal {
         println!("{:<12} {:<20} {}", "personal", personal.name(), personal.email());
     } else {
-        println!("{:<12} {:<20} {}", "personal", "Not configured", "");
+        println!("{:<12} {:<20}", "personal", "Not configured");
     }
     if let Some(work) = state.work {
         println!("{:<12} {:<20} {}", "work", work.name(), work.email());
     } else {
-        println!("{:<12} {:<20} {}", "work", "Not configured", "");
+        println!("{:<12} {:<20}", "work", "Not configured");
     }
 
     Ok(())
@@ -46,8 +46,16 @@ pub fn set(ctx: &DependencyContainer) -> Result<(), AppError> {
 
     let (p_name_default, p_email_default, w_name_default, w_email_default) = match &existing {
         Some(state) => {
-            let (pn, pe) = state.personal.as_ref().map(|id| (id.name().to_string(), id.email().to_string())).unwrap_or_default();
-            let (wn, we) = state.work.as_ref().map(|id| (id.name().to_string(), id.email().to_string())).unwrap_or_default();
+            let (pn, pe) = state
+                .personal
+                .as_ref()
+                .map(|id| (id.name().to_string(), id.email().to_string()))
+                .unwrap_or_default();
+            let (wn, we) = state
+                .work
+                .as_ref()
+                .map(|id| (id.name().to_string(), id.email().to_string()))
+                .unwrap_or_default();
             (pn, pe, wn, we)
         }
         None => (String::new(), String::new(), String::new(), String::new()),
