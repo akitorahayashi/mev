@@ -16,7 +16,7 @@ pub struct BackupArgs {
     pub list: bool,
 
     /// Backup component (system, vscode).
-    #[arg(name = "target")]
+    #[arg(name = "target", value_name = "COMPONENT")]
     pub component: Option<String>,
 }
 

@@ -1,4 +1,4 @@
-//! Repository target resolution.
+//! Repository resolution.
 
 use crate::domain::DomainError;
 use crate::domain::repository_ref::RepositoryRef;
