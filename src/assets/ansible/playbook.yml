@@ -26,7 +26,6 @@
       - rust-tools
       - go-tools
       - vscode
-      - cursor
       - coder
       - mlx
       - xcode
