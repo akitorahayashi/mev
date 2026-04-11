@@ -23,13 +23,9 @@ pub struct Identity {
 impl Identity {
     /// Creates a new identity, ensuring fields are not empty.
     pub fn new(name: impl Into<String>, email: impl Into<String>) -> Option<Self> {
-        let name = name.into();
-        let email = email.into();
-        if name.trim().is_empty() || email.trim().is_empty() {
-            None
-        } else {
-            Some(Self { name, email })
-        }
+        let name = name.into().trim().to_string();
+        let email = email.into().trim().to_string();
+        if name.is_empty() || email.is_empty() { None } else { Some(Self { name, email }) }
     }
 
     /// Gets the name of the identity.
@@ -106,6 +102,20 @@ pub fn resolve_identity_scope(input: &str) -> Option<IdentityScope> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn identity_validation() {
+        // Valid inputs
+        let id = Identity::new(" Jane Doe ", " jane@example.com ").unwrap();
+        assert_eq!(id.name(), "Jane Doe");
+        assert_eq!(id.email(), "jane@example.com");
+
+        // Empty or whitespace inputs
+        assert!(Identity::new("", "jane@example.com").is_none());
+        assert!(Identity::new("  ", "jane@example.com").is_none());
+        assert!(Identity::new("Jane Doe", "").is_none());
+        assert!(Identity::new("Jane Doe", "  ").is_none());
+    }
 
     #[test]
     fn resolves_identity_scopes() {
