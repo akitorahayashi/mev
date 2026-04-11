@@ -271,7 +271,7 @@ struct TagCatalog {
 }
 
 /// Load tag mappings from a playbook.yml file.
-fn load_catalog(playbook_path: &PathBuf) -> Result<TagCatalog, Box<dyn std::error::Error>> {
+fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(playbook_path)?;
     let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)?;
 
@@ -284,7 +284,11 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<TagCatalog, Box<dyn std::erro
                     if let (Some(group_name), Some(seq)) = (k.as_str(), v.as_sequence()) {
                         let group_tags: Vec<String> =
                             seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
-                        catalog.tag_groups.insert(group_name.to_string(), group_tags);
+                        catalog
+                            .tag_groups
+                            .entry(group_name.to_string())
+                            .or_default()
+                            .extend(group_tags);
                     }
                 }
             }
@@ -475,5 +479,24 @@ mod tests {
 
         let result = adapter.build_command("profile", &[], false);
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
+    }
+
+    #[test]
+    fn test_load_catalog_merges_tag_groups_across_plays() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: first\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\"]\n- name: second\n  vars:\n    tag_groups:\n      rust: [\"rust-tools\"]\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.tag_groups.get("rust"),
+            Some(&vec!["rust-platform".to_string(), "rust-tools".to_string()])
+        );
+
+        Ok(())
     }
 }
