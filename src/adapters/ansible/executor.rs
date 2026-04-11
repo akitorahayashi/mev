@@ -79,7 +79,7 @@ impl AnsibleAdapter {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let (tags_by_role, tag_to_role, tag_groups, full_setup_tags) =
+        let TagCatalog { tags_by_role, tag_to_role, tag_groups, full_setup_tags } =
             load_catalog(&playbook_path)?;
 
         Ok(Self {
@@ -262,83 +262,71 @@ impl AnsiblePort for AnsibleAdapter {
 }
 
 /// Tag catalog: role→tags, tag→role, tag_groups, and full_setup_tags.
-type Catalog = (
-    HashMap<String, Vec<String>>,
-    HashMap<String, String>,
-    HashMap<String, Vec<String>>,
-    Vec<String>,
-);
+#[derive(Default)]
+struct TagCatalog {
+    tags_by_role: HashMap<String, Vec<String>>,
+    tag_to_role: HashMap<String, String>,
+    tag_groups: HashMap<String, Vec<String>>,
+    full_setup_tags: Vec<String>,
+}
 
 /// Load tag mappings from a playbook.yml file.
-fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::Error>> {
+fn load_catalog(playbook_path: &PathBuf) -> Result<TagCatalog, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(playbook_path)?;
     let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)?;
 
-    let role_key = serde_yaml::Value::String("role".to_string());
-    let tags_key = serde_yaml::Value::String("tags".to_string());
-
-    let mut tags_by_role: HashMap<String, Vec<String>> = HashMap::new();
-    let mut tag_to_role = HashMap::new();
-    let mut tag_groups = HashMap::new();
-    let mut full_setup_tags = Vec::new();
+    let mut catalog = TagCatalog::default();
 
     for doc in &docs {
-        if let Some(vars) = doc.get("vars").and_then(|v| v.as_mapping()) {
-            if let Some(tg) = vars
-                .get(serde_yaml::Value::String("tag_groups".to_string()))
-                .and_then(|v| v.as_mapping())
-            {
+        if let Some(vars) = doc.get("vars") {
+            if let Some(tg) = vars.get("tag_groups").and_then(|v| v.as_mapping()) {
                 for (k, v) in tg {
                     if let (Some(group_name), Some(seq)) = (k.as_str(), v.as_sequence()) {
                         let group_tags: Vec<String> =
                             seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
-                        tag_groups.insert(group_name.to_string(), group_tags);
+                        catalog.tag_groups.insert(group_name.to_string(), group_tags);
                     }
                 }
             }
-            if let Some(fst) = vars
-                .get(serde_yaml::Value::String("full_setup_tags".to_string()))
-                .and_then(|v| v.as_sequence())
-            {
-                full_setup_tags =
-                    fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+            if let Some(fst) = vars.get("full_setup_tags").and_then(|v| v.as_sequence()) {
+                catalog
+                    .full_setup_tags
+                    .extend(fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())));
             }
         }
 
         if let Some(roles) = doc.get("roles").and_then(|r| r.as_sequence()) {
             for role_entry in roles {
-                if let Some(mapping) = role_entry.as_mapping() {
-                    let role_name =
-                        mapping.get(&role_key).and_then(|v| v.as_str()).map(|s| s.to_string());
+                let role_name =
+                    role_entry.get("role").and_then(|v| v.as_str()).map(|s| s.to_string());
 
-                    let tags: Vec<String> = match mapping.get(&tags_key) {
-                        Some(serde_yaml::Value::Sequence(seq)) => {
-                            seq.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect()
-                        }
-                        Some(serde_yaml::Value::String(s)) => vec![s.to_string()],
-                        _ => Vec::new(),
-                    };
-
-                    if let Some(name) = role_name {
-                        for tag in &tags {
-                            if let Some(existing) = tag_to_role.get(tag)
-                                && existing != &name
-                            {
-                                return Err(format!(
-                                    "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
-                                )
-                                .into());
-                            }
-                            tag_to_role.insert(tag.to_string(), name.to_string());
-                        }
-                        tags_by_role.entry(name).or_default().extend(tags);
+                let tags: Vec<String> = match role_entry.get("tags") {
+                    Some(serde_yaml::Value::Sequence(seq)) => {
+                        seq.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect()
                     }
+                    Some(serde_yaml::Value::String(s)) => vec![s.to_string()],
+                    _ => Vec::new(),
+                };
+
+                if let Some(name) = role_name {
+                    for tag in &tags {
+                        if let Some(existing) = catalog.tag_to_role.get(tag)
+                            && existing != &name
+                        {
+                            return Err(format!(
+                                "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
+                            )
+                            .into());
+                        }
+                        catalog.tag_to_role.insert(tag.to_string(), name.to_string());
+                    }
+                    catalog.tags_by_role.entry(name).or_default().extend(tags);
                 }
             }
         }
     }
 
-    Ok((tags_by_role, tag_to_role, tag_groups, full_setup_tags))
+    Ok(catalog)
 }
 #[cfg(test)]
 mod tests {
