@@ -26,6 +26,7 @@
       - rust-tools
       - go-tools
       - vscode
+      - zed
       - coder
       - mlx
       - xcode

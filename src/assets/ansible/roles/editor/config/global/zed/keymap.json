@@ -28,7 +28,7 @@
     "bindings": {
       "shift-enter": [
         "terminal::SendText",
-        "\\\n"
+        "\n"
       ],
       "ctrl-cmd-n": "workspace::NewTerminal",
       "ctrl-cmd-s": "pane::SplitRight",
