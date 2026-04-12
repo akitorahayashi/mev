@@ -50,7 +50,7 @@ pub fn execute(
     }
 
     let mut lines = vec!["---".to_string()];
-    let home_dir = std::env::var("HOME").unwrap_or_default();
+    let home_dir = ctx.home_dir.to_string_lossy();
 
     for def in &definitions {
         let raw_value = match ctx.macos_defaults.read_key(&def.domain, &def.key)? {
@@ -180,7 +180,10 @@ fn format_string(
     };
 
     if key == "location" && !home_dir.is_empty() && value.starts_with(home_dir) {
-        value = Cow::Owned(value.replacen(home_dir, "$HOME", 1));
+        let suffix = &value[home_dir.len()..];
+        if suffix.is_empty() || suffix.starts_with('/') {
+            value = Cow::Owned(format!("$HOME{suffix}"));
+        }
     }
 
     serde_json::to_string(&value).map_err(|e| {
@@ -276,6 +279,13 @@ mod tests {
             format_string(path, "location", &serde_yaml::Value::Null, "/mock/home")
                 .expect("location string formatting should succeed"),
             "\"$HOME/file.txt\""
+        );
+
+        let path = "/mock/home_backup/file.txt";
+        assert_eq!(
+            format_string(path, "location", &serde_yaml::Value::Null, "/mock/home")
+                .expect("location string formatting should succeed"),
+            "\"/mock/home_backup/file.txt\""
         );
     }
 
