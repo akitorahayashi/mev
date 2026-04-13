@@ -1,0 +1,12 @@
+theme = Github Dark Default
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+
+window-width = 90
+window-height = 40
+
+cursor-color = 7FFFD4
+
+background-opacity = 0.80
+background-blur = true
+shell-integration-features = cursor,title
