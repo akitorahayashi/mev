@@ -32,6 +32,7 @@ alias uuu="cd ../../.."
 alias rt='cd "${SHELL_START_DIR}"'
 
 alias bt="bat"
-alias e="eza"
-alias ez="eza"
+alias e="eza --group-directories-first"
+alias e-t="eza --tree --level=2 --group-directories-first"
+alias ez-t="eza --tree --level=2 --group-directories-first"
 alias ls="eza"
