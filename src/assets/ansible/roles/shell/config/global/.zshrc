@@ -17,5 +17,8 @@ for config_file in ~/.mev/alias/**/*.sh~**/dev/dev.sh; do
     fi
 done
 
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # Added by Antigravity
 export PATH="/Users/akitorahayashi/.antigravity/antigravity/bin:$PATH"
