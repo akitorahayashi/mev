@@ -123,7 +123,7 @@ clean:
 _find_shell_files:
     @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
-    grep -v "^./reference/" | \
+    grep -v "^./references/" | \
     grep -v "\.uv-cache" | \
     grep -v "\.venv" | \
     grep -v "\.jlo"
