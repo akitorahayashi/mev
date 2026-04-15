@@ -1,0 +1,7 @@
+---
+- name: "Symlink .vimrc"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/vim/global/.vimrc"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.vimrc"
+    state: link
+    force: true
