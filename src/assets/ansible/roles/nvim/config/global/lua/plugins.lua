@@ -17,4 +17,5 @@ require("lazy").setup({
 	require("plugins.github-theme"),
 	require("plugins.gitsigns"),
 	require("plugins.neo-tree"),
+	require("plugins.smear-cursor"),
 })
