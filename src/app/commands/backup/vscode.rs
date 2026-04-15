@@ -28,12 +28,12 @@ pub fn execute(ctx: &DependencyContainer, output_dir: &Path) -> Result<(), AppEr
 
     let extensions_output = output_dir.join("vscode-extensions.json");
     ctx.fs.write(&extensions_output, content.as_bytes())?;
-
     let settings_output = output_dir.join("settings.json");
     ctx.fs.copy(&settings_source, &settings_output)?;
 
     println!("VSCode extensions list backed up to: {}", extensions_output.display());
     println!("VSCode settings backed up to: {}", settings_output.display());
+
     Ok(())
 }
 
