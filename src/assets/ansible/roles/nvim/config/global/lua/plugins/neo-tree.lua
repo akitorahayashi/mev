@@ -21,6 +21,13 @@ return {
 			follow_current_file = {
 				enabled = true,
 			},
+			filtered_items = {
+				visible = true,
+				never_show = {
+					".DS_Store",
+					".git",
+				},
+			},
 		},
 		window = {
 			mappings = {
