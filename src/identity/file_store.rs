@@ -7,7 +7,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::error::AppError;
-use crate::identity::identity::{Identity, IdentityScope};
+use crate::identity::model::{Identity, IdentityScope};
 use crate::identity::store::{IdentityState, IdentityStore};
 
 fn dot_config_dir() -> Result<PathBuf, AppError> {
@@ -88,7 +88,7 @@ impl IdentityStore for IdentityFileStore {
 #[cfg(test)]
 mod tests {
     use super::IdentityFileStore;
-    use crate::identity::identity::{Identity, IdentityScope};
+    use crate::identity::model::{Identity, IdentityScope};
     use crate::identity::store::{IdentityState, IdentityStore};
     use std::path::PathBuf;
     use tempfile::tempdir;

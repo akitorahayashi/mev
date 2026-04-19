@@ -21,7 +21,7 @@ pub use cli::run as cli;
 
 use crate::app::AppContext;
 use crate::error::AppError;
-use crate::identity::identity::IdentityScope;
+use crate::identity::model::IdentityScope;
 use crate::provisioning::assets::locator;
 use crate::provisioning::profile::Profile;
 use crate::update::version_source::VersionSource;

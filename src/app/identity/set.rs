@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crate::app::AppContext;
 use crate::error::AppError;
-use crate::identity::identity::Identity;
+use crate::identity::model::Identity;
 use crate::identity::store::{IdentityState, IdentityStore};
 
 /// Set Git identity configuration interactively.

@@ -3,7 +3,7 @@
 use std::path::Path;
 
 use crate::error::AppError;
-use crate::identity::identity::{Identity, IdentityScope};
+use crate::identity::model::{Identity, IdentityScope};
 
 /// Persists and retrieves Git identity configuration.
 pub trait IdentityStore {
@@ -36,7 +36,7 @@ fn deserialize_identity_option<'de, D>(deserializer: D) -> Result<Option<Identit
 where
     D: serde::Deserializer<'de>,
 {
-    use crate::identity::identity::RawIdentity;
+    use crate::identity::model::RawIdentity;
     use serde::Deserialize;
     let raw: Option<RawIdentity> = Option::deserialize(deserializer)?;
     Ok(raw.and_then(|r| Identity::try_from(r).ok()))

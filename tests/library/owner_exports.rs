@@ -12,7 +12,7 @@ fn provisioning_tag_resolution_is_public() {
 
 #[test]
 fn identity_resolves_identities() {
-    use mev::identity::identity::IdentityScope;
-    let identity = mev::identity::identity::resolve_identity_scope("p");
+    use mev::identity::model::IdentityScope;
+    let identity = mev::identity::model::resolve_identity_scope("p");
     assert_eq!(identity, Some(IdentityScope::Personal));
 }

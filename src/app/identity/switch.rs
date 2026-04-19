@@ -3,7 +3,7 @@
 use crate::app::AppContext;
 use crate::error::AppError;
 use crate::identity::git_config::GitPort;
-use crate::identity::identity::IdentityScope;
+use crate::identity::model::IdentityScope;
 use crate::identity::store::IdentityStore;
 
 /// Execute the `switch` command: change global Git identity.
