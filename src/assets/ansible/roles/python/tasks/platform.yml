@@ -20,6 +20,7 @@
 - name: "Install uv-managed Python version"
   ansible.builtin.command:
     cmd: "uv python install {{ python_version }} --default --no-progress"
-  changed_when: false
+  register: python_uv_install
+  changed_when: "'Installed Python' in python_uv_install.stderr"
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

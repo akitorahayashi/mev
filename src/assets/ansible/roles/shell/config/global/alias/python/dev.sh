@@ -29,3 +29,13 @@ py-cln() {
 	rm -rf .ruff_cache
 	echo "✅ Cleanup completed"
 }
+
+# venv
+act() {
+	if [[ $# -eq 1 ]]; then
+		source "./$1/bin/activate"
+	else
+		source "./.venv/bin/activate"
+	fi
+}
+alias dct='deactivate'

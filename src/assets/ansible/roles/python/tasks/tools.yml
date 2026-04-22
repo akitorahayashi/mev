@@ -17,7 +17,8 @@
        | selectattr('python_version', 'defined')
        | map(attribute='python_version')
        | list)) | unique }}
-  changed_when: false
+  register: python_pipx_python_install
+  changed_when: "'Installed Python' in python_pipx_python_install.stderr"
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
