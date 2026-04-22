@@ -1,25 +1,23 @@
 ---
-- name: "Install nvm, jq, and pnpm"
+- name: "Install fnm, jq, and pnpm"
   community.general.homebrew:
     name: "{{ item }}"
     state: present
   loop:
-    - nvm
+    - fnm
     - jq
     - pnpm
 
-- name: "Install specified Node.js version with nvm"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm install {{ nodejs_version }} --skip-existing"
-  args:
-    creates: "{{ ansible_facts['env']['HOME'] }}/.nvm/versions/node/v{{ nodejs_version }}"
+- name: "Install specified Node.js version with fnm"
+  ansible.builtin.command:
+    cmd: "fnm install {{ nodejs_version }} --progress=never"
   changed_when: false
   environment:
-    NVM_DIR: "{{ ansible_facts['env']['HOME'] }}/.nvm"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set default Node.js version"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm alias default {{ nodejs_version }}"
+  ansible.builtin.command:
+    cmd: "fnm default {{ nodejs_version }}"
   changed_when: false
   environment:
-    NVM_DIR: "{{ ansible_facts['env']['HOME'] }}/.nvm"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
