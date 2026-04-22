@@ -5,7 +5,7 @@
   register: nodejs_npm_path
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set Node.js bin path"
   ansible.builtin.set_fact:
@@ -80,7 +80,7 @@
   failed_when: false
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:

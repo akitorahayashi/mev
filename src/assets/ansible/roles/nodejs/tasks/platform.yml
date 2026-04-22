@@ -8,16 +8,27 @@
     - jq
     - pnpm
 
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: nodejs_homebrew_prefix
+  changed_when: false
+
+- name: "Set Homebrew binary path"
+  ansible.builtin.set_fact:
+    nodejs_homebrew_bin_path: "{{ nodejs_homebrew_prefix.stdout }}/bin"
+
 - name: "Install specified Node.js version with fnm"
   ansible.builtin.command:
     cmd: "fnm install {{ nodejs_version }} --progress=never"
-  changed_when: false
+  register: nodejs_fnm_install
+  changed_when: "'already installed' not in (nodejs_fnm_install.stdout ~ nodejs_fnm_install.stderr)"
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set default Node.js version"
   ansible.builtin.command:
     cmd: "fnm default {{ nodejs_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"

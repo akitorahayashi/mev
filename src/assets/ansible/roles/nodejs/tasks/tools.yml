@@ -22,4 +22,4 @@
   changed_when: false
   environment:
     PNPM_HOME: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['HOME'] }}/Library/pnpm:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['HOME'] }}/Library/pnpm:{{ ansible_facts['env']['PATH'] }}"
