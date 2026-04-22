@@ -8,18 +8,13 @@
   ansible.builtin.set_fact:
     python_version: "{{ python_version_file.content | b64decode | trim }}"
 
-- name: "Setup uv"
-  ansible.builtin.include_tasks: uv.yml
+- name: "Setup Python platform"
+  ansible.builtin.include_tasks: platform.yml
   when: >
-    'uv' in ansible_run_tags or
     'python-platform' in ansible_run_tags or
     'py-p' in ansible_run_tags or
     'python-tools' in ansible_run_tags or
     'py-t' in ansible_run_tags
-
-- name: "Setup Python platform"
-  ansible.builtin.include_tasks: platform.yml
-  when: "'python-platform' in ansible_run_tags or 'py-p' in ansible_run_tags"
 
 - name: "Install Python tools"
   ansible.builtin.include_tasks: tools.yml
