@@ -140,6 +140,38 @@
     mode: "0755"
   loop: "{{ nodejs_coder_skills_targets.tools }}"
 
+- name: "Find deployed agent skill links"
+  ansible.builtin.find:
+    paths: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
+    file_type: link
+    depth: 1
+  register: nodejs_coder_deployed_skill_links
+  loop: "{{ nodejs_coder_skills_targets.tools }}"
+
+- name: "Remove stale managed agent skill links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ nodejs_coder_deployed_skill_links.results | map(attribute='files') | flatten }}"
+  when:
+    - (item.lnk_source | default('')).startswith(local_config_root ~ '/nodejs/global/coder/skills/')
+    - item.path | basename not in nodejs_coder_skills
+
+- name: "Inspect deployed agent skill paths"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
+  register: nodejs_coder_deployed_skill_stats
+  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"
+
+- name: "Remove non-link agent skill path conflicts"
+  ansible.builtin.file:
+    path: "{{ item.stat.path }}"
+    state: absent
+  loop: "{{ nodejs_coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+
 - name: "Deploy global agent skills to all CLIs"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/global/coder/skills/{{ item.0 }}"
