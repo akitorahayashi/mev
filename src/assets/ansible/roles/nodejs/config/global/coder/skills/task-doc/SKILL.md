@@ -11,9 +11,9 @@ Organize requirements, context, and implementation work into a concise task docu
 
 ## When To Use
 
-Use this skill when the user asks to create, write, organize, or convert requirements and tasks into a task document.
+This skill applies when the user asks to create, write, organize, or convert requirements and tasks into a task document.
 
-Common trigger phrasing:
+Common trigger phrasing includes:
 - "put this into a task document"
 - "turn this into a task document"
 - "create a task document for ..."
@@ -54,8 +54,8 @@ Common trigger phrasing:
 
 ## Additional Context
 
-Add extra headings at the most appropriate position in the document only when the schema cannot cover the information cleanly, such as notable background, domain-specific requirements, domain information, implementation details, library usage, migration notes, or reviewed decisions.
+Additional headings belong at the most appropriate position in the document only when the schema cannot cover the information cleanly, such as notable background, domain-specific requirements, domain information, implementation details, library usage, migration notes, or reviewed decisions.
 
 ## Style
 
-Write the entire task document in declarative style. Preserve declarative style when applying user-requested revisions.
+The entire task document remains in declarative style, including user-requested revisions.
